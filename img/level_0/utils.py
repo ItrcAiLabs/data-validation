@@ -1,36 +1,24 @@
 import os
-from PIL import Image
+import imghdr
+from PIL import Image, ImageStat
 
-def check_file_exists(file_path):
-    """Check if the file exists."""
-    if not os.path.exists(file_path):
-        return False, "File does not exist."
-    return True, None
+import os
+import json
 
-def check_file_size(file_path, max_size_mb):
-    """Check if the file size is within the allowed limit."""
-    file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
-    if file_size_mb > max_size_mb:
-        return False, f"File size exceeds {max_size_mb} MB (actual: {file_size_mb:.2f} MB)."
-    return True, None
+import os
 
-def check_file_format(file_path, allowed_formats):
-    """Check if the file format is in the allowed formats."""
-    try:
-        with Image.open(file_path) as img:
-            file_format = img.format
-            if file_format not in allowed_formats:
-                return False, f"Invalid file format: {file_format}. Allowed formats: {allowed_formats}."
-    except Exception as e:
-        return False, f"Error reading image: {str(e)}"
-    return True, None
+def check_file_exists(path_image: str, list_images: list) -> bool:
+    """
+    Check if the file name (without extension) exists in the provided list of image names.
 
-def check_image_dimensions(file_path, expected_dimensions):
-    """Check if the image dimensions match the expected dimensions."""
-    try:
-        with Image.open(file_path) as img:
-            if img.size != expected_dimensions:
-                return False, f"Unexpected dimensions: {img.size}. Expected: {expected_dimensions}."
-    except Exception as e:
-        return False, f"Error reading image dimensions: {str(e)}"
-    return True, None
+    :param path_image: The full path of the image file (string)
+    :param list_images: A list of image names (strings) to check against
+    :return: Boolean value indicating whether the image name (without extension) is in the list
+    """
+    # Extract the name of the file without the extension
+    name = os.path.splitext(os.path.basename(path_image))[0]
+
+    # Check if the extracted file name exists in the list of image names
+    if name in list_images:
+        return True
+    return False
