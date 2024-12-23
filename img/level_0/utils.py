@@ -14,7 +14,7 @@ def check_file_exists(image_path: str, list_images: list) -> tuple[bool, str]:
     :return: Boolean value indicating whether the image name (without extension) is in the list
     """
     # Extract the name of the file 
-    name = os.path.splitext(os.path.basename(image_path))
+    name = os.path.basename(image_path)
 
     # Check if the extracted file name exists in the list of image names
     if name in list_images:
