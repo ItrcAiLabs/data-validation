@@ -9,15 +9,15 @@ class validation:
         pass
 
     def level0(self) -> None:
-        self.path_logger = config_level_0.get("path_logger")
-        self.path_image_folder = config_level_0.get("path_image_folder")
-        self.path_image_list = config_level_0.get("path_image_list")
-        self.max_size_mb = config_level_0.get("max_size_mb")
-        self.allowed_formats = config_level_0.get("allowed_formats")
-        self.min_size_mb = config_level_0.get("min_size_mb")
-        self.expected_dimensions_list = config_level_0.get("expected_dimensions_list")
-        self.expected_mode = config_level_0.get("expected_mode")
-        self.pixel_range = config_level_0.get("pixel_range")
+        self.path_logger = configFormatValidator.get("path_logger")
+        self.path_image_folder = configFormatValidator.get("path_image_folder")
+        self.path_image_list = configFormatValidator.get("path_image_list")
+        self.max_size_mb = configFormatValidator.get("max_size_mb")
+        self.allowed_formats = configFormatValidator.get("allowed_formats")
+        self.min_size_mb = configFormatValidator.get("min_size_mb")
+        self.expected_dimensions_list = configFormatValidator.get("expected_dimensions_list")
+        self.expected_mode = configFormatValidator.get("expected_mode")
+        self.pixel_range = configFormatValidator.get("pixel_range")
 
 
         self.list_path_images = list_all_files(self.path_image_folder)
