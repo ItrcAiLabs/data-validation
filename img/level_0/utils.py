@@ -11,7 +11,7 @@ def check_file_exists(image_path: str, list_images: list) -> tuple[bool, str]:
 
     :param path_image: The full path of the image file (string)
     :param list_images: A list of image names (strings) to check against
-    :return: Boolean value indicating whether the image name (without extension) is in the list
+    :return: Boolean value indicating whether the image name  is in the list
     """
     # Extract the name of the file 
     name = os.path.basename(image_path)
