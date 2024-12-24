@@ -1,4 +1,4 @@
-level_0 = {
+configFormatValidator = {
     "path_logger": "/home/reza/test_img/level_0.txt",
     "path_image_folder": "/home/reza/Downloads/انصاری",
     "path_image_list": "/home/reza/test_img/image_file_names.json",

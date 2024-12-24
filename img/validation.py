@@ -1,6 +1,6 @@
 import json
 from ImageFormatValidator.ImageFormatValidator import ImageFormatValidator
-from configs.config_level_0 import config_level_0
+from configs.configFormatValidator import configFormatValidator
 from utils import list_all_files
 
 
