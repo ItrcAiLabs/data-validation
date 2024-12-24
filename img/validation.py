@@ -1,5 +1,5 @@
 import json
-from level_0.level_0 import level0_validation
+from ImageFormatValidator.ImageFormatValidator import ImageFormatValidator
 from configs.config_level_0 import config_level_0
 from utils import list_all_files
 
@@ -25,7 +25,7 @@ class validation:
         with open(self.path_image_list, "r") as file:
             self.image_list = json.load(file)
         # for level_0
-        level0_validation(self.path_logger, 
+        ImageFormatValidator(self.path_logger, 
                 self.list_path_images , 
                 self.image_list, 
                 self.max_size_mb, 

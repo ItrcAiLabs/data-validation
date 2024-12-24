@@ -1,7 +1,7 @@
 from .utils import * 
 
 
-def level0_validation(path_logger : str, 
+def ImageFormatValidator(path_logger : str, 
             list_path_images : list, 
             list_images : list, 
             max_size_mb: int, 
