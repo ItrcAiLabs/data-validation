@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validation Report</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="/static/styles.css"> <!-- Link to external CSS file -->
+</head>
+
+<body>
+    <header>
+        <h1>Validation Report</h1>
+    </header>
+
+    <div class="container">
+        <div class="result-title">File Validation Results</div>
+
+        {% if validation_report %}
+        <div>
+            {% for result in validation_report %}
+            <!-- Add dynamic class based on counter_valid -->
+            <div class="result-item counter-{{ result.status[-1].counter_valid }}"
+                onclick="toggleDetails('{{ result.image_path }}')">
+                <span><strong>Image Path:</strong> {{ result.image_path }}</span>
+            </div>
+            <!-- Details section for each path -->
+            <div id="details-{{ result.image_path }}" class="details hidden">
+                <ul>
+                    {% for status in result.status[:-1] %} <!-- Exclude counter_valid from the list -->
+                    <li>
+                        {% for key, value in status.items() %}
+                        <div class="result-item">
+                            <span class="status-icon">
+                                {% if value[0] is none %}
+                                ⚪
+                                {% elif value[0] %}
+                                ✔️
+                                {% else %}
+                                ❌
+                                {% endif %}
+                            </span>
+                            <span
+                                class="{% if value[0] is none %}status-none{% elif value[0] %}status-ok{% else %}status-error{% endif %}">
+                                {{ key.replace('_', ' ').capitalize() }}:
+                                {% if value[0] is none %}
+                                No value provided
+                                {% elif value[0] %}
+                                {{ value[1] }}
+                                {% else %}
+                                {{ value[1] }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="no-results">No validation results found.</p>
+        {% endif %}
+    </div>
+
+    <footer>
+        © 2025 Validation Report. All rights reserved ITRC AI LABS
+        A.Parvaresh & M.Farhoudi.
+    </footer>
+
+    <script>
+        // JavaScript to toggle details visibility
+        function toggleDetails(imagePath) {
+            const detailsSection = document.getElementById(`details-${imagePath}`);
+            detailsSection.classList.toggle('hidden'); // Toggle the 'hidden' class
+        }
+    </script>
+</body>
+
+</html>
