@@ -5,6 +5,7 @@
 import pandas as pd
 import re
 import json
+import utils * 
 
 def validate_text(text: str, sequence_of_operations: list) -> str:
     """Validate and process the text based on the sequence of operations."""
@@ -22,10 +23,7 @@ def validate_text(text: str, sequence_of_operations: list) -> str:
         elif operation == "remove_arabic_diacritics":
             text = remove_arabic_diacritics(text)  # Remove Arabic diacritics
         elif operation == "spell_check":
-            spell = SpellChecker()
-            words = text.split()
-            corrected_words = [spell.correction(word) for word in words]
-            text = ' '.join(corrected_words)  # Spell check
+            text = remove_not_corrected_spell(text) # remove text not correected text
         elif operation == "remove_informal_words":
             text = remove_informal_words(text)  # remove informal words
     
