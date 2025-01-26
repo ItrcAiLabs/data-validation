@@ -1,11 +1,10 @@
-def data_model_accuracy(df, text_column: str = 'text', label_column: str = 'label') -> dict:
+def data_model_accuracy(df, required_columns : list) -> dict:
     """
     Calculate the data model accuracy (alignment of data structure with requirements) and provide detailed feedback.
     
     Parameters:
     - df: DataFrame containing the data.
-    - text_column: Name of the column containing the text.
-    - label_column: Name of the column containing the label.
+    - required_columns : list of required_columns in data
     
     Returns:
     - A dictionary with:
@@ -13,7 +12,6 @@ def data_model_accuracy(df, text_column: str = 'text', label_column: str = 'labe
         - `missing_columns`: A list of required columns that are missing.
     """
     # Check if required columns exist
-    required_columns = [text_column, label_column]
     missing_columns = [col for col in required_columns if col not in df.columns]
     
     # Calculate accuracy
