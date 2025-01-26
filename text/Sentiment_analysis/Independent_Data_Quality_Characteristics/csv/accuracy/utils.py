@@ -3,6 +3,11 @@ import string
 import nltk
 from nltk.corpus import stopwords
 from hazm import Normalizer, word_tokenize, stopwords_list
+import dadmatools.pipeline.language as language
+
+# Initialize DadmaTools spellchecker pipeline
+spell_checker =  language.Pipeline('spellchecker')
+
 
 # Define a string of Persian punctuations to be removed
 # This includes common punctuation symbols used in Persian text
@@ -112,3 +117,23 @@ def remove_stopwords(text : str) -> str:
     
     # Return the filtered text by joining the words back together
     return ' '.join(filtered_words)
+
+
+def remove_not_corrected_spell(text):
+    """
+    Use DadmaTools to perform spell checking on the input text.
+
+    Args:
+        text (str): Input text to be spell-checked.
+
+    Returns:
+        str: Corrected text if errors are found; otherwise, the original text.
+    """
+    # Use DadmaTools spell checker to correct the text
+    corrected_text = str(spell_checker(text)["spellchecker"]["corrected"])
+
+    # Return corrected text only if it's different from the input text
+    if corrected_text == text:
+        return text
+    else:
+        return ''
