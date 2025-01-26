@@ -56,7 +56,7 @@ def syntactic_accuracy(df: pd.DataFrame, text_column='text', sequence_of_operati
     # Prepare the output as a dictionary to be converted to JSON
     result = {
         "accuracy": accuracy,
-        "problematic_rows": problematic_rows[text_column].tolist()  # Convert the problematic rows to a list
+        "Wrong Data": problematic_rows[text_column].tolist()  # Convert the problematic rows to a list
     }
     
     # Convert the result to a JSON string and return
