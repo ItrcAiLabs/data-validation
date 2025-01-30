@@ -1,3 +1,8 @@
+"""
+    This code is written based on:  
+        - ISO/IEC 5259, 25012, and 25024 standards.
+"""
+
 def semantic_accuracy(df, text_column='text', label_column='label'):
     """
     Calculate the semantic accuracy of labels in the dataset.

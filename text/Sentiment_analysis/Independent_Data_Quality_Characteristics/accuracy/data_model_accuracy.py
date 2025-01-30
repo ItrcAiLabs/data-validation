@@ -1,3 +1,8 @@
+"""
+    This code is written based on:  
+        - ISO/IEC 5259, 25012, and 25024 standards.
+"""
+
 def data_model_accuracy(df, required_columns : list) -> dict:
     """
     Calculate the data model accuracy (alignment of data structure with requirements) and provide detailed feedback.

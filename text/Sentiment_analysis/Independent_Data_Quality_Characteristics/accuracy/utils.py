@@ -1,7 +1,6 @@
 import re
 import string
 import nltk
-from nltk.corpus import stopwords
 from hazm import Normalizer, word_tokenize, stopwords_list
 import dadmatools.pipeline.language as language
 

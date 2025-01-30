@@ -5,7 +5,7 @@
 import pandas as pd
 import re
 import json
-import utils * 
+import .utils * 
 
 def validate_text(text: str, sequence_of_operations: list) -> str:
     """Validate and process the text based on the sequence of operations."""
