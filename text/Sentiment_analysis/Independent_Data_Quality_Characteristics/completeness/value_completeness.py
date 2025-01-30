@@ -5,7 +5,7 @@
     data validation tools : value_completeness
     Authors: ALireza Parvaresh
     Contributors: mojgan farhoudi , mohmmad hadi bokaei
-    URL: <https://www.nltk.org/>
+    URL: <https://itrc.ac.ir/fa/>
     For license information, see LICENSE.TXT
 """
 import pandas as pd
