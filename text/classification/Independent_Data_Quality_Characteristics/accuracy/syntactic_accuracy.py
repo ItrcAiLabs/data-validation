@@ -1,6 +1,15 @@
 """
     This code is written based on:  
         - ISO/IEC 5259, 25012, and 25024 standards.
+
+
+    Natural Language Toolkit: BLEU Score
+    
+    Copyright (C) 2001-2024 NLTK Project
+    Authors: Chin Yee Lee, Hengfeng Li, Ruxin Hou, Calvin Tanujaya Lim
+    Contributors: Björn Mattsson, Dmitrijs Milajevs, Liling Tan
+    URL: <https://www.nltk.org/>
+    For license information, see LICENSE.TXT
 """
 import pandas as pd
 import re
