@@ -1,22 +1,18 @@
 import pandas as pd
 from datetime import datetime
 
+# Function to calculate age based on timestamp column
 def calculate_age(df, timestamp_col='timestamp'):
     """
-    Calculates the age of data based on the timestamp column.
-    
-    Parameters:
-        df (pd.DataFrame): DataFrame containing the data.
-        timestamp_col (str): Name of the timestamp column (default: 'timestamp').
-    
-    Returns:
-        pd.DataFrame: DataFrame with a new column 'age' indicating the age of the data.
+    This function calculates the 'age' of data records in days based on the timestamp.
+    It adds an 'age' column to the DataFrame, where the age is calculated as the
+    difference in days between the current date and the timestamp.
+
+    :param df: The DataFrame containing the data.
+    :param timestamp_col: The name of the column containing the timestamp (default is 'timestamp').
+    :return: The DataFrame with an additional 'age' column.
     """
-    # Convert the timestamp column to datetime format
-    df[timestamp_col] = pd.to_datetime(df[timestamp_col])
-    
-    # Calculate the age of the data (difference between current time and the timestamp)
-    current_time = datetime.now()
-    df['age'] = (current_time - df[timestamp_col]).dt.days
-    
-    return df
+    df[timestamp_col] = pd.to_datetime(df[timestamp_col])  
+    current_time = datetime.now()  
+    df['age'] = (current_time - df[timestamp_col]).dt.days  
+    return df  
