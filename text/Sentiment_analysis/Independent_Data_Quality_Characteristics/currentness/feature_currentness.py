@@ -6,7 +6,7 @@
 import pandas as pd
 
 
-def feature_currentness_based_on_age(df : pd.DataFrame, lable_col ,age_col='age', threshold_days=180) -> dict:
+def feature_currentness(df : pd.DataFrame, lable_col ,age_col='age', threshold_days=180) -> dict:
     """
     This function calculates the currentness of features in the dataset based on the 'age' column.
     It compares the 'age' column with a threshold value and determines the proportion of features
