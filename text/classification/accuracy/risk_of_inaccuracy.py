@@ -100,28 +100,28 @@ class RiskOfInaccuracy:
 
 # Example usage (Farsi Sentiment Dataset)
 
-data = {
-    "text": [
-        "این محصول فوق‌العاده بود!",  # Valid length
-        "خیلی بد",  # Too short (outlier)
-        "من از این خرید کاملاً راضی هستم و به همه پیشنهاد می‌کنم.",  # Valid length
-        "محصول افتضاح بود و اصلاً توصیه نمی‌کنم. کیفیت بسیار پایین و ارسال خیلی دیر انجام شد. برخورد پشتیبانی هم خوب نبود.",  # Too long (outlier)
-        "متوسط بود"  # Valid length
-    ],
-    "label": ["مثبت", "منفی", "مثبت", "منفی", "خنثی"],
-    "date": ["2024-02-01", "2024-02-02", "2024-02-03", "2024-02-04", "2024-02-05"]
-}
+# data = {
+#     "text": [
+#         "این محصول فوق‌العاده بود!",  # Valid length
+#         "خیلی بد",  # Too short (outlier)
+#         "من از این خرید کاملاً راضی هستم و به همه پیشنهاد می‌کنم.",  # Valid length
+#         "محصول افتضاح بود و اصلاً توصیه نمی‌کنم. کیفیت بسیار پایین و ارسال خیلی دیر انجام شد. برخورد پشتیبانی هم خوب نبود.",  # Too long (outlier)
+#         "متوسط بود"  # Valid length
+#     ],
+#     "label": ["مثبت", "منفی", "مثبت", "منفی", "خنثی"],
+#     "date": ["2024-02-01", "2024-02-02", "2024-02-03", "2024-02-04", "2024-02-05"]
+# }
 
 
-df = pd.DataFrame(data)
+# df = pd.DataFrame(data)
 
-risk_checker = RiskOfInaccuracy(df, text_column="text", date_column="date", min_length=5, max_length=50, start_date="2024-01-01", end_date="2024-12-31")
+# risk_checker = RiskOfInaccuracy(df, text_column="text", date_column="date", min_length=5, max_length=50, start_date="2024-01-01", end_date="2024-12-31")
 
-risk_checker.check_text_length()
+# risk_checker.check_text_length()
 
-risk_checker.check_date_validity()
-report = risk_checker.get_risk_assessment()
-print(report)
+# risk_checker.check_date_validity()
+# report = risk_checker.get_risk_assessment()
+# print(report)
 
 
 # output
