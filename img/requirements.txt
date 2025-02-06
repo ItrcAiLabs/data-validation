@@ -1,0 +1,3 @@
+Pillow==10.0.0
+opencv-python==4.5.3.56
+# imghdr is part of the Python Standard Library and does not require installation

@@ -1,0 +1,4 @@
+dadmatools
+pandas 
+hazm
+emoji

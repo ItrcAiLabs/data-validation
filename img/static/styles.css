@@ -1,0 +1,183 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
+    line-height: 1.6;
+}
+
+/* Header */
+header {
+    background-color: #3b82f6;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Result Title */
+.result-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* Result Item */
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 10px;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    /* Add pointer cursor to indicate clickable */
+}
+
+.result-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.result-item span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Details Section */
+.details {
+    margin-left: 20px;
+    /* Indent details for better hierarchy */
+    padding: 10px;
+    border-left: 3px solid #e2e8f0;
+    /* Add a border for visual separation */
+}
+
+.hidden {
+    display: none;
+    /* Hide details by default */
+}
+
+/* Status Icons */
+.status-icon {
+    font-size: 16px;
+}
+
+.status-ok {
+    color: #10b981;
+}
+
+.status-error {
+    color: #ef4444;
+}
+
+.status-none {
+    color: #64748b;
+}
+
+.status-info {
+    color: #3b82f6;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #1e293b;
+    color: white;
+    font-size: 14px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    font-size: 16px;
+    color: #64748b;
+    margin: 20px 0;
+}
+
+/* Dynamic Background Colors Based on Counter Valid */
+.counter-6 {
+    background-color: #10b981;
+    /* Green for full validation */
+    color: white;
+}
+
+.counter-5 {
+    background-color: #10b981;
+    /* Green for full validation */
+    color: white;
+}
+
+.counter-4 {
+    background-color: #fde047;
+    /* Yellow for 4 valid checks */
+    color: #1e293b;
+}
+
+.counter-3 {
+    background-color: #f97316;
+    /* Orange for 3 valid checks */
+    color: white;
+}
+
+.counter-2 {
+    background-color: #ef4444;
+    /* Red for 2 valid checks */
+    color: white;
+}
+
+.counter-1 {
+    background-color: #9333ea;
+    /* Purple for 1 valid check */
+    color: white;
+}
+
+.counter-0 {
+    background-color: #6b21a8;
+    /* Dark Purple for 0 valid checks */
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    .result-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
