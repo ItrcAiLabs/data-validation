@@ -69,7 +69,7 @@ class DataModelAccuracy:
         }
         return json.dumps(result, ensure_ascii=False, indent=4)
 
-
+# # Example usage
 # Example usage (Farsi Sentiment Dataset)
 # data = {
 #     "text": [
