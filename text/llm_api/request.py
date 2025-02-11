@@ -5,12 +5,12 @@ def get_user_input():
     """prompt the user for input and return it"""
     return input("Enter your prompt(or type 'exit' to quit)")
 
-def send_request(prompt):
+def send_request(url, username, password, prompt):
     """Send a POST request to the Flask server with the given prompt."""
-    url = "http://172.20.253.8:5000/run_command"
+    url = url
     payload = {"prompt":prompt}
 
-    response = requests.post(url, json=payload, auth=HTTPBasicAuth('<your_username>', "<your_password>"))
+    response = requests.post(url, json=payload, auth=HTTPBasicAuth(username, password))
 
     #check if the response was successful
     if response.status_code ==200:
@@ -20,6 +20,9 @@ def send_request(prompt):
     
 def main():
         """Main function to run the prompt loop"""
+        url = "<your_url>"
+        username = "<your_username>"
+        password = "<your_password>"
         while True:
             try:
                 user_input = get_user_input()
@@ -27,7 +30,7 @@ def main():
                 if user_input.lower() == "exit":
                     print("Exiting the program")
                     break
-                response = send_request(user_input)
+                response = send_request(url,username,password,user_input)
 
                 # Check if the response is a valid response object
                 if isinstance(response, requests.Response):
