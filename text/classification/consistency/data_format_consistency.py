@@ -63,33 +63,38 @@ class DataFormatConsistency:
         return json.dumps(result, ensure_ascii=False, indent=4)
 
 
-# Example usage (Farsi Sentiment Dataset)
-# data = {
-#     "text": [
-#         "این یک محصول عالی است",  # Positive
-#         "کیفیت خیلی بد بود، ناراضی هستم",  # Negative
-#         "محصول متوسط بود، می‌توانست بهتر باشد",  # Neutral
-#         "خرید این محصول را پیشنهاد نمی‌کنم",  # Negative
-#         12345  # Mismatched type (integer)
-#     ],
-#     "label": ["مثبت", "منفی", "خنثی", "منفی", 100],  # Mismatched type (integer)
-#     "date": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"]
-# }
-# df = pd.DataFrame(data)
+#Example usage (Farsi Sentiment Dataset)
+data = {
+    "text": [
+        "این یک محصول عالی است",  # Positive
+        "کیفیت خیلی بد بود، ناراضی هستم",  # Negative
+        "محصول متوسط بود، می‌توانست بهتر باشد",  # Neutral
+        "خرید این محصول را پیشنهاد نمی‌کنم",  # Negative
+        12345  # Mismatched type (integer)
+    ],
+    "label": ["مثبت", 2, "خنثی", "منفی", 100],  # Mismatched type (integer)
+    "date": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"]
+}
+df = pd.DataFrame(data)
 
-# # Data format consistency check
-# format_checker = DataFormatConsistency(df)
-# format_checker.check_format_compatibility()
-# print(format_checker.get_format_compatibility_report())
+# Data format consistency check
+format_checker = DataFormatConsistency(df)
+format_checker.check_format_compatibility()
+print(format_checker.get_format_compatibility_report())
 
 # Example Output:
-# {
-#     "format_compatibility_ratio": 0.8,
-#     "mismatched_rows": [
-#         {
-#             "text": 12345,
-#             "label": 100,
-#             "date": "2024-01-05"
-#         }
-#     ]
-# }
+    # {
+    #     "format_compatibility_ratio": 0.6,
+    #     "mismatched_rows": [
+    #         {
+    #             "text": "کیفیت خیلی بد بود، ناراضی هستم",
+    #             "label": 2,
+    #             "date": "2024-01-02"
+    #         },
+    #         {
+    #             "text": 12345,
+    #             "label": 100,
+    #             "date": "2024-01-05"
+    #         }
+    #     ]
+    # }
