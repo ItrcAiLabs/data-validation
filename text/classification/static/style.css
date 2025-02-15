@@ -1,0 +1,103 @@
+/* راست‌چین کلی */
+body {
+    direction: rtl;
+    background-color: #f0f4ff;
+    font-family: 'IRANSans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #2c3e50;
+    margin: 0;
+    padding: 0;
+}
+
+/* نوار بالا */
+.navbar {
+    background-color: #4a69bd;
+    color: #ffffff;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+/* کانتینر اصلی */
+.container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* استایل برای کارت‌ها */
+.card {
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #6a89cc, #b8e994);
+    color: white;
+}
+
+.card-header {
+    background: #4a69bd;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 15px;
+    border-bottom: 2px solid #3b5998;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* لیست تو در تو برای گزارش */
+.nested-list {
+    list-style-type: none;
+    padding-right: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+.nested-list li {
+    margin-bottom: 5px;
+    line-height: 1.7;
+}
+
+/* کلاس‌های رنگی برای نمایش سطح دقت */
+.good {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.average {
+    background-color: #FFC107;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.poor {
+    background-color: #E74C3C;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+/* استایل فرم */
+form {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* استایل دکمه‌ها */
+.btn-primary {
+    background-color: #6a89cc;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #4a69bd;
+}
