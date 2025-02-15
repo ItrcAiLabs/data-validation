@@ -2,13 +2,9 @@
     This code is written based on:  
         - ISO/IEC 5259, 25012, and 25024 standards.
 """
-import json
-import pandas as pd
-import torch
-from transformers import BertTokenizer, BertModel
-from sklearn.metrics.pairwise import cosine_similarity
 
-from utils import CleanText
+
+from .utils import CleanText
 import torch
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
@@ -153,8 +149,8 @@ class SyntacticAccuracy:
             
             for issue, texts in problematic_issues.items():
                 issue_report[issue].extend(texts)
-        
-        accuracy = sum(similarities) / len(similarities)
+        print(issue_report)
+        accuracy = 1 / len(self.df)
         
         result = {
             "accuracy": accuracy,  # Overall syntactic accuracy
