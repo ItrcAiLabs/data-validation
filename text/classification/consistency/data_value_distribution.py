@@ -36,7 +36,7 @@ class DataValueDistribution:
         result = {
             "label_distribution": self.label_distribution
         }
-        return json.dumps(result, ensure_ascii=False, indent=4)
+        return json.dumps(result, ensure_ascii=False, indent=4, default=str)
 
 # Example usage
 # data = {
