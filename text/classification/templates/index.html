@@ -1,0 +1,217 @@
+{% extends "layout.html" %}
+{% block title %}فرم ارزیابی کیفیت داده{% endblock %}
+{% block content %}
+
+<h1 class="mb-4 text-center">فرم ارزیابی کیفیت داده</h1>
+
+<form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
+    <!-- آپلود فایل CSV -->
+    <div class="mb-3">
+        <label for="file" class="form-label">انتخاب فایل CSV</label>
+        <input type="file" name="file" id="file" class="form-control" required>
+    </div>
+
+    <hr>
+
+    <!-- تنظیمات Currentness -->
+    <h4>تنظیمات Currentness</h4>
+    <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" name="enable_currentness" id="enable_currentness">
+        <label class="form-check-label" for="enable_currentness">
+            فعال کردن بررسی currentness
+        </label>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label for="currentness_text_column" class="form-label">ستون متن</label>
+            <input type="text" name="currentness_text_column" id="currentness_text_column" class="form-control" value="text">
+        </div>
+        <div class="col-md-6">
+            <label for="currentness_context" class="form-label">متن زمینه (context)</label>
+            <input type="text" name="currentness_context" id="currentness_context" class="form-control" value="Political">
+        </div>
+        <div class="col-md-6">
+            <label for="currentness_timestamp_col" class="form-label">ستون timestamp</label>
+            <input type="text" name="currentness_timestamp_col" id="currentness_timestamp_col" class="form-control" value="timestamp">
+        </div>
+        <div class="col-md-6">
+            <label for="currentness_threshold_days" class="form-label">حد آستانه روز (threshold_days)</label>
+            <input type="number" name="currentness_threshold_days" id="currentness_threshold_days" class="form-control" value="600">
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- تنظیمات Completeness -->
+    <h4>تنظیمات Completeness</h4>
+    <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" name="enable_completeness" id="enable_completeness">
+        <label class="form-check-label" for="enable_completeness">
+            فعال کردن بررسی completeness
+        </label>
+    </div>
+    <div class="mb-3">
+        <label for="completeness_label_column" class="form-label">ستون برچسب (label_column)</label>
+        <input type="text" name="completeness_label_column" id="completeness_label_column" class="form-control" value="label">
+    </div>
+    <div class="mb-3">
+        <label for="completeness_expected_occurrences" class="form-label">تعداد وقوع‌های مورد انتظار (به صورت JSON)</label>
+        <input type="text" name="completeness_expected_occurrences" id="completeness_expected_occurrences" class="form-control" value='{"مثبت": 2, "خنثی": 1}'>
+    </div>
+
+    <hr>
+
+    <!-- تنظیمات Consistency -->
+    <h4>تنظیمات Consistency</h4>
+    <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" name="enable_consistency" id="enable_consistency">
+        <label class="form-check-label" for="enable_consistency">
+            فعال کردن بررسی consistency
+        </label>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label for="consistency_text_column" class="form-label">ستون متن</label>
+            <input type="text" name="consistency_text_column" id="consistency_text_column" class="form-control" value="text">
+        </div>
+        <div class="col-md-4">
+            <label for="consistency_label_column" class="form-label">ستون برچسب</label>
+            <input type="text" name="consistency_label_column" id="consistency_label_column" class="form-control" value="label">
+        </div>
+        <div class="col-md-4">
+            <label for="consistency_date_column" class="form-label">ستون تاریخ</label>
+            <input type="text" name="consistency_date_column" id="consistency_date_column" class="form-control" value="date">
+        </div>
+        <div class="col-md-6">
+            <label for="consistency_similarity_threshold" class="form-label">آستانه تشابه</label>
+            <input type="number" step="0.01" name="consistency_similarity_threshold" id="consistency_similarity_threshold" class="form-control" value="0.95">
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- تنظیمات Accuracy -->
+    <h4>تنظیمات Accuracy</h4>
+    <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" name="enable_accuracy" id="enable_accuracy">
+        <label class="form-check-label" for="enable_accuracy">
+            فعال کردن بررسی accuracy
+        </label>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label for="accuracy_required_columns" class="form-label">ستون‌های مورد نیاز (با کاما جدا شوند)</label>
+            <input type="text" name="accuracy_required_columns" id="accuracy_required_columns" class="form-control" value="id,text,label,date">
+        </div>
+        <div class="col-md-6">
+            <label for="accuracy_required_size" class="form-label">حداقل تعداد رکورد</label>
+            <input type="number" name="accuracy_required_size" id="accuracy_required_size" class="form-control" value="3">
+        </div>
+        <div class="col-md-6">
+            <label for="accuracy_text_column" class="form-label">ستون متن</label>
+            <input type="text" name="accuracy_text_column" id="accuracy_text_column" class="form-control" value="text">
+        </div>
+        <div class="col-md-6">
+            <label for="accuracy_date_column" class="form-label">ستون تاریخ</label>
+            <input type="text" name="accuracy_date_column" id="accuracy_date_column" class="form-control" value="date">
+        </div>
+        <div class="col-md-6">
+            <label for="accuracy_min_length" class="form-label">حداقل طول متن</label>
+            <input type="number" name="accuracy_min_length" id="accuracy_min_length" class="form-control" value="5">
+        </div>
+        <div class="col-md-6">
+            <label for="accuracy_max_length" class="form-label">حداکثر طول متن</label>
+            <input type="number" name="accuracy_max_length" id="accuracy_max_length" class="form-control" value="50">
+        </div>
+        <div class="col-md-6">
+            <label for="accuracy_start_date" class="form-label">تاریخ شروع</label>
+            <input type="date" name="accuracy_start_date" id="accuracy_start_date" class="form-control" value="2024-01-01">
+        </div>
+        <div class="col-md-6">
+            <label for="accuracy_end_date" class="form-label">تاریخ پایان</label>
+            <input type="date" name="accuracy_end_date" id="accuracy_end_date" class="form-control" value="2024-12-31">
+        </div>
+    </div>
+
+    <div class="mb-3 mt-3">
+        <label class="form-label">دستورالعمل‌های پاکسازی (چند گزینه‌ای):</label>
+        <div class="row">
+            <div class="col-6 col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="clean_ops" value="remove_links" id="remove_links">
+                    <label class="form-check-label" for="remove_links">حذف لینک‌ها</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="clean_ops" value="remove_emails" id="remove_emails">
+                    <label class="form-check-label" for="remove_emails">حذف ایمیل‌ها</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="clean_ops" value="remove_hashtags" id="remove_hashtags">
+                    <label class="form-check-label" for="remove_hashtags">حذف هشتگ‌ها</label>
+                </div>
+            </div>
+            <div class="col-6 col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="clean_ops" value="remove_mentions" id="remove_mentions">
+                    <label class="form-check-label" for="remove_mentions">حذف منشن‌ها</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="clean_ops" value="remove_phone_numbers" id="remove_phone_numbers">
+                    <label class="form-check-label" for="remove_phone_numbers">حذف شماره تلفن‌ها</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="clean_ops" value="remove_persian_punctuation" id="remove_persian_punctuation">
+                    <label class="form-check-label" for="remove_persian_punctuation">حذف علائم نگارشی فارسی</label>
+                </div>
+            </div>
+            <div class="col-6 col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="clean_ops" value="remove_arabic_diacritics" id="remove_arabic_diacritics">
+                    <label class="form-check-label" for="remove_arabic_diacritics">حذف حرکات عربی</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="clean_ops" value="remove_informal_words" id="remove_informal_words">
+                    <label class="form-check-label" for="remove_informal_words">حذف کلمات غیررسمی</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="clean_ops" value="remove_stopwords" id="remove_stopwords">
+                    <label class="form-check-label" for="remove_stopwords">حذف کلمات توقف</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="clean_ops" value="remove_extra_spaces" id="remove_extra_spaces">
+                    <label class="form-check-label" for="remove_extra_spaces">حذف فاصله‌های اضافی</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="clean_ops" value="remove_emoji" id="remove_emoji">
+                    <label class="form-check-label" for="remove_emoji">حذف ایموجی‌ها</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">وظیفه معنایی:</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="semantic_task" value="sentiment" id="sentiment" checked>
+            <label class="form-check-label" for="sentiment">تحلیل احساس (sentiment)</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="semantic_task" value="news" id="news">
+            <label class="form-check-label" for="news">طبقه‌بندی خبر (news)</label>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="accuracy_mapping_label" class="form-label">نقشه برچسب‌ها (به صورت JSON)</label>
+        <input type="text" name="accuracy_mapping_label" id="accuracy_mapping_label" class="form-control"
+               value='{"furious": "منفی", "angry": "عصبانی", "neutral": "خنثی", "happy": "خوشحال", "delighted": "مثبت"}'>
+    </div>
+    <div class="mb-3">
+        <label for="accuracy_semantic_model_name" class="form-label">نام مدل معنایی</label>
+        <input type="text" name="accuracy_semantic_model_name" id="accuracy_semantic_model_name" class="form-control" value="deepsentipers">
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">ارسال</button>
+</form>
+
+{% endblock %}

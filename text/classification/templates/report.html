@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block title %}گزارش کیفیت داده{% endblock %}
+{% block content %}
+
+<h1 class="mb-4 text-center">گزارش کیفیت داده</h1>
+
+<!-- ماکرو برای رندر دیکشنری (و لیست) به‌صورت بازگشتی با رنگ‌آمیزی اعداد -->
+{% macro render_dict(data) %}
+<ul class="list-group">
+    {% for key, val in data.items() %}
+        <li class="list-group-item">
+            <strong>{{ key }}:</strong>
+            {% if val is mapping %}
+                {{ render_dict(val) }}
+            {% elif val is sequence and val is not string %}
+                <ul class="list-group">
+                    {% for item in val %}
+                        <li class="list-group-item">
+                            {% if item is mapping %}
+                                {{ render_dict(item) }}
+                            {% elif item is number %}
+                                <span class="{{ item|get_color_class }}">{{ item }}</span>
+                            {% else %}
+                                {{ item }}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% elif val is number %}
+                <span class="{{ val|get_color_class }}">{{ val }}</span>
+            {% else %}
+                {{ val }}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+{% endmacro %}
+
+{% for section, section_report in report.items() %}
+<div class="card mb-3 shadow-sm">
+    <div class="card-header">
+        <h4 class="mb-0">{{ section | replace("_", " ") }}</h4>
+    </div>
+    <div class="card-body">
+        {{ render_dict(section_report) }}
+    </div>
+</div>
+{% endfor %}
+
+<div class="text-center">
+    <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">بازگشت</a>
+</div>
+
+{% endblock %}
