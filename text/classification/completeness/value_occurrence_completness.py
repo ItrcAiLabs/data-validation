@@ -30,10 +30,10 @@ class ValueOcurrenceCompletness:
         label_counts = self.df[self.label_column].value_counts().to_dict()
         
         self.label_accuracy = {
-            label: (self.expected_occurrences[label] / count) if count > 0 else 0.0
+            label: min(1, self.expected_occurrences[label] / count)
             for label, count in label_counts.items() if label in self.expected_occurrences
         }
-        
+
         self.overall_accuracy = sum(self.label_accuracy.values()) / len(self.label_accuracy) if self.label_accuracy else 0.0
     
     def get_label_accuracy_report(self) -> str:
