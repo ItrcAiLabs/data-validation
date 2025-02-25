@@ -1,0 +1,115 @@
+.alert {
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+.form-control {
+    direction: rtl;
+    text-align: right;
+}
+
+.btn-primary {
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(106, 137, 204, 0.4);
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+
+.progress-bar {
+    transition: width 0.5s ease-in-out;
+}
+
+.progress-bar-striped {
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 1rem 1rem;
+}
+
+@keyframes progress-bar-stripes {
+    from { background-position: 1rem 0; }
+    to { background-position: 0 0; }
+}
+
+.progress-bar-animated {
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+
+body {
+    direction: rtl;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f4ff;
+    font-family: 'Vazir', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #2c3e50;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+
+.card {
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #6a89cc, #b8e994);
+    color: white;
+    text-align: center;
+}
+
+.form-group {
+    text-align: center;
+    margin: 15px auto;
+    max-width: 500px;
+}
+
+.btn-primary {
+    display: block;
+    margin: 20px auto;
+    width: 200px;
+}
+
+.progress {
+    width: 80%;
+    margin: 20px auto;
+}
+
+#time-info, #processed-info {
+    text-align: center;
+    margin: 15px 0;
+}
+
+.card-header {
+    text-align: center;
+}
+
+.nested-list {
+    text-align: right;
+    display: inline-block;
+    margin: 0 auto;
+}
