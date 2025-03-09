@@ -1,0 +1,56 @@
+/* Full-page background image */
+body {
+    background-image: url('d.jpg'); /* Make sure this is in the correct path */
+    background-size: cover;
+    background-position: center;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    color: white;
+}
+
+/* Center the container both vertically and horizontally */
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    gap: 20px;
+    text-align: center;
+}
+
+/* Title with background box for better readability */
+.title-box {
+    background: rgba(0, 0, 0, 0.7); /* Dark semi-transparent background */
+    padding: 20px 40px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+}
+
+/* Title text inside the box */
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin: 0;
+}
+
+/* Modern button styling */
+.modern-button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 15px 30px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.modern-button:hover {
+    background-color: #0056b3;
+}

@@ -1,9 +1,9 @@
 import os
 import xml.etree.ElementTree as ET
 
-from car_color_classifier.car_color_classifier_yolo4 import detect_car_color
-from iranian_car_detection.detection import detect_cars
-from Iranian_Plate_Recognitiont.plate_recognizer import detect_plate_chars, process_image
+from .car_color_classifier.car_color_classifier_yolo4 import detect_car_color
+from .iranian_car_detection.detection import detect_cars
+from .Iranian_Plate_Recognitiont.plate_recognizer import detect_plate_chars, process_image
 
 class Labeling:
     def __init__(self, source_dir: str, output_dir: str):

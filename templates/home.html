@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Flask App</title>
+  <!-- Link to external CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="container">
+    <div class="title-box">
+      <h1 class="title">Data Platform of the Telecommunications Research Center<br>Artificial Intelligence Development Center</h1>
+    </div>
+    
+    <!-- Buttons -->
+    <a href="/auto_labeling_car" class="modern-button">Auto Labeling Car</a>
+    <a href="/evaluation_text" class="modern-button">Evaluation Text Classification</a>
+  </div>
+</body>
+</html>

@@ -1,3 +1,43 @@
+body {
+    direction: rtl;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f4ff;
+    background-image: url("../static/logo.jpeg"); 
+    background-size: 90% 80%; 
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'Vazir', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #2c3e50;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+
+.card {
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #6a89cc, #b8e994);
+    color: white;
+    text-align: center;
+}
+
+.card-header {
+    text-align: center;
+}
+
 .alert {
     border-radius: 8px;
     margin: 15px 0;
@@ -8,7 +48,21 @@
     text-align: right;
 }
 
+.form-group {
+    text-align: center;
+    margin: 15px auto;
+    max-width: 500px;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
 .btn-primary {
+    display: block;
+    margin: 20px auto;
+    width: 200px;
     transition: all 0.3s ease;
 }
 
@@ -17,11 +71,10 @@
     box-shadow: 0 5px 15px rgba(106, 137, 204, 0.4);
 }
 
-.form-group label {
-    font-weight: 600;
-    margin-bottom: 8px;
+.progress {
+    width: 80%;
+    margin: 20px auto;
 }
-
 
 .progress-bar {
     transition: width 0.5s ease-in-out;
@@ -50,62 +103,9 @@
     animation: progress-bar-stripes 1s linear infinite;
 }
 
-
-body {
-    direction: rtl;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    justify-content: center;
-    align-items: center;
-    background-color: #f0f4ff;
-    font-family: 'Vazir', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color: #2c3e50;
-    margin: 0;
-    padding: 20px;
-    text-align: center;
-}
-
-.container {
-    width: 100%;
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
-}
-
-.card {
-    margin: 0 auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background: linear-gradient(135deg, #6a89cc, #b8e994);
-    color: white;
-    text-align: center;
-}
-
-.form-group {
-    text-align: center;
-    margin: 15px auto;
-    max-width: 500px;
-}
-
-.btn-primary {
-    display: block;
-    margin: 20px auto;
-    width: 200px;
-}
-
-.progress {
-    width: 80%;
-    margin: 20px auto;
-}
-
 #time-info, #processed-info {
     text-align: center;
     margin: 15px 0;
-}
-
-.card-header {
-    text-align: center;
 }
 
 .nested-list {

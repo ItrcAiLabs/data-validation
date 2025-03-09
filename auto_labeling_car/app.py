@@ -1,11 +1,26 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify
 from threading import Thread, Lock
 import time
 import os
-from automatic_labeling import Labeling
+from .automatic_labeling import Labeling
 
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'
+
+
+
+bp_dir = os.path.abspath(os.path.dirname(__file__))
+template_folder = os.path.join(bp_dir, 'templates')
+static_folder = os.path.join(bp_dir, 'static')
+
+automatic_labeling_app = Blueprint(
+    'automatic_labeling_app',
+    __name__,
+    template_folder=template_folder,
+    static_folder=static_folder,
+    static_url_path='/auto_labeling_car/static'
+)
+
+# Point template_folder one level up to use the project’s templates
+# automatic_labeling_app = Blueprint('automatic_labeling_app', __name__, template_folder='./templates')
 
 progress = {
     "processing": False,
@@ -44,19 +59,19 @@ def process_images(source_dir, output_dir):
             progress["processing"] = False
         raise e
 
-@app.route('/progress')
+@automatic_labeling_app.route('/progress')
 def get_progress():
     with progress_lock:
         return jsonify(progress)
 
-@app.route('/', methods=['GET', 'POST'])
+@automatic_labeling_app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         source_dir = request.form['source_dir']
         output_dir = request.form['output_dir']
         
         if not os.path.isdir(source_dir):
-            return render_template('index.html', error="مسیر پوشه تصاویر نامعتبر است!")
+            return render_template('index.html', error="Invalid image directory!")
         
         thread = Thread(target=process_images, args=(source_dir, output_dir))
         thread.start()
@@ -64,8 +79,3 @@ def index():
         return render_template('processing.html')
     
     return render_template('index.html')
-
-
-if __name__ == '__main__':
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    app.run(debug=True)

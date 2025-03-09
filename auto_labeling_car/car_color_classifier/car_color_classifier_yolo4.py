@@ -4,7 +4,7 @@ import cv2
 import os
 from  .classifier import Classifier
 
-def detect_car_color(image_path, yolo_path='./car_color_classifier/yolov4', confidence_threshold=0.5, nms_threshold=0.3):
+def detect_car_color(image_path, yolo_path='./auto_labeling_car/car_color_classifier/yolov4', confidence_threshold=0.5, nms_threshold=0.3):
     car_color_classifier = Classifier()
     
     # Load YOLO class labels
