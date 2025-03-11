@@ -25,7 +25,7 @@
 <div class="container py-5">
     <h1 class="text-center mb-5">سامانه ارزیابی کیفیت داده‌های پلاک خودرو</h1>
     
-    <form method="post" class="needs-validation" novalidate>
+    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
         <!-- بخش مسیرهای دسترسی -->
         <div class="form-section">
             <h2 class="section-title">تنظیمات مسیرها</h2>
@@ -106,7 +106,7 @@
             </div>
         </div>
 
-                <!-- بخش محدوده ابعاد تصویر -->
+        <!-- بخش محدوده ابعاد تصویر -->
         <div class="form-section">
             <h2 class="section-title">محدودیت‌های ابعاد تصویر</h2>
             
@@ -153,6 +153,7 @@
                 </div>
             </div>
         </div>
+
         <!-- بخش تنظیمات پیشرفته -->
         <div class="form-section">
             <h2 class="section-title">تنظیمات پیشرفته</h2>
@@ -163,162 +164,121 @@
                     <input type="number" class="form-control" id="threshold_days" 
                            name="threshold_days" min="1" value="30" required>
                 </div>
-                
-
-                <div class="form-section">
-                    <h2 class="section-title">متادیتاهای الزامی</h2>
-                    
-                    <div class="row g-3">
-                        <div class="col-md-12">
-                            <div class="border p-3 rounded bg-white">
-                                <div class="row">
-                                    <!-- ستون اول -->
-                                    <div class="col-md-6">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="metadata_fields[]" 
-                                                value="width" id="meta-width" checked>
-                                            <label class="form-check-label" for="meta-width">عرض تصویر (width)</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="metadata_fields[]" 
-                                                value="height" id="meta-height" checked>
-                                            <label class="form-check-label" for="meta-height">ارتفاع تصویر (height)</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="metadata_fields[]" 
-                                                value="format" id="meta-format" checked>
-                                            <label class="form-check-label" for="meta-format">فرمت فایل (format)</label>
-                                        </div>
-                                    </div>
-
-                                    <!-- ستون دوم -->
-                                    <div class="col-md-6">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="metadata_fields[]" 
-                                                value="location" id="meta-location">
-                                            <label class="form-check-label" for="meta-location">موقعیت مکانی (location)</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="metadata_fields[]" 
-                                                value="date" id="meta-date">
-                                            <label class="form-check-label" for="meta-date">تاریخ ثبت (date)</label>
-                                        </div>
-                                    </div>
+            </div>
+        </div>
+        
+        <!-- بخش متادیتاهای الزامی -->
+        <div class="form-section">
+            <h2 class="section-title">متادیتاهای الزامی</h2>
+            
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <div class="border p-3 rounded bg-white">
+                        <div class="row">
+                            <!-- ستون اول -->
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="metadata_fields[]" 
+                                        value="width" id="meta-width" checked>
+                                    <label class="form-check-label" for="meta-width">عرض تصویر (width)</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="metadata_fields[]" 
+                                        value="height" id="meta-height" checked>
+                                    <label class="form-check-label" for="meta-height">ارتفاع تصویر (height)</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="metadata_fields[]" 
+                                        value="format" id="meta-format" checked>
+                                    <label class="form-check-label" for="meta-format">فرمت فایل (format)</label>
                                 </div>
                             </div>
-                            
+
+                            <!-- ستون دوم -->
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="metadata_fields[]" 
+                                        value="location" id="meta-location">
+                                    <label class="form-check-label" for="meta-location">موقعیت مکانی (location)</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="metadata_fields[]" 
+                                        value="date" id="meta-date">
+                                    <label class="form-check-label" for="meta-date">تاریخ ثبت (date)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <small class="form-text text-muted">
+                        لطفا حداقل ۳ مورد از گزینه‌های فوق را انتخاب نمایید
+                    </small>
+                </div>
+            </div>
+        </div>
+
+               
+        <!-- بخش آپلود فایل پیکربندی دقت -->
+        <div class="form-section mt-5">
+            <h2 class="section-title">آپلود فایل مپینگ XML به JSON</h2>
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <div class="border p-3 rounded bg-white">
+                        <div class="mb-3">
+                            <label class="form-label">فایل JSON را انتخاب کنید</label>
+                            <input class="form-control" type="file" name="xml_config" id="xml_config" accept=".json" required>
                             <small class="form-text text-muted">
-                                لطفا حداقل ۳ مورد از گزینه‌های فوق را انتخاب نمایید
+                                فرمت مورد قبول: JSON • حداکثر حجم: 1MB
                             </small>
                         </div>
-                    </div>
-                </div>
-                
-
-            </div>
-        </div>
-            
-            <!-- اضافه کردن enctype برای آپلود فایل -->
-                <!-- بخش مسیرهای دسترسی -->
-                <div class="form-section">
-                    <h2 class="section-title">تنظیمات مسیرها</h2>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="xml_folder" class="form-label">مسیر پوشه XML</label>
-                            <input type="text" class="form-control" id="xml_folder" name="xml_folder" placeholder="مثال: /var/data/xml_files" required>
-                            <div class="invalid-feedback">لطفا مسیر پوشه XML را وارد کنید</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="image_folder" class="form-label">مسیر پوشه تصاویر</label>
-                            <input type="text" class="form-control" id="image_folder" name="image_folder" placeholder="مثال: /var/data/images" required>
-                            <div class="invalid-feedback">لطفا مسیر پوشه تصاویر را وارد کنید</div>
-                        </div>
-                    </div>
-                </div>
-        
-                <!-- سایر بخش‌های فرم (تنظیمات فایل‌ها، محدودیت‌های ابعاد، تنظیمات پیشرفته و ... ) -->
-                <!-- ... -->
-        
-            <!-- بخش آپلود فایل پیکربندی دقت -->
-            <div class="form-section mt-5">
-                <h2 class="section-title">آپلود فایل مپینگ XML به JSON</h2>
-                <div class="row g-3">
-                    <div class="col-md-12">
-                        <div class="border p-3 rounded bg-white">
-                            <div class="mb-3">
-                                <label class="form-label">فایل JSON را انتخاب کنید</label>
-                                <input class="form-control" type="file" name="xml_config" accept=".json" required>
-                                <small class="form-text text-muted">
-                                    فرمت مورد قبول: JSON • حداکثر حجم: 1MB
-                                </small>
-                            </div>
-                            <div class="alert alert-info">
-                                <h6>ساختار مورد نیاز:</h6>
-                                <pre class="mb-0">
+                        <div class="alert alert-info">
+                            <h6>ساختار مورد نیاز:</h6>
+                            <pre class="mb-0">
     {
-        "accuracy_required_fields": {
-        "registration_prefix": "LicensePlate/RegistrationPrefix",
-        "series_letter": "LicensePlate/SeriesLetter",
-        "registration_number": "LicensePlate/RegistrationNumber",
-        "province_code": "LicensePlate/ProvinceCode",
-        "car_model": "CarModel",
-        "car_color": "CarColor",
-        "license_plate_coordinates": "LicensePlateCoordinates",
-        "car_coordinates": "CarCoordinates",
-        "car_coordinates_X": "CarCoordinates/X",
-        "car_coordinates_Y": "CarCoordinates/Y",
-        "car_coordinates_Width": "CarCoordinates/Width",
-        "car_coordinates_Height": "CarCoordinates/Height"
-        }
+        "config" = {
+            "registration_prefix": "LicensePlate/RegistrationPrefix",
+            "series_letter": "LicensePlate/SeriesLetter",
+            "registration_number": "LicensePlate/RegistrationNumber",
+            "province_code": "LicensePlate/ProvinceCode",
+            "car_model": "CarModel",
+            "car_color": "CarColor",
+            "license_plate_coordinates_x" : "LicensePlateCoordinates/X",
+            "license_plate_coordinates_y" : "LicensePlateCoordinates/Y" ,
+            "license_plate_coordinates_width" : "LicensePlateCoordinates/Width",
+            "license_plate_coordinates_height" : "LicensePlateCoordinates/Height",
+            "car_coordinates_x" : "CarCoordinates/X",
+            "car_coordinates_y" : "CarCoordinates/Y",
+            "car_coordinates_width" : "CarCoordinates/Width",
+            "car_coordinates_height" : "CarCoordinates/Height"
+            }
     }
-                                </pre>
-                                <button class="btn btn-sm btn-secondary mt-2" onclick="downloadSample()">دانلود نمونه کامل</button>
-                            </div>
-                            <div class="alert alert-warning mt-3">
-                                <h6>الزامات فنی:</h6>
-                                <ul class="list-group">
-                                    <li class="list-group-item list-group-item-warning">
-                                        <strong>کلیدهای اجباری:</strong><br>
-                                        تمامی کلیدهای نمایش داده شده در نمونه باید وجود داشته باشند
-                                    </li>
-                                    <li class="list-group-item list-group-item-warning">
-                                        <strong>قالب‌بندی XPath:</strong><br>
-                                        مسیرها باید با ساختار درخت XML فایل ورودی مطابقت داشته باشد
-                                    </li>
-                                    <li class="list-group-item list-group-item-warning">
-                                        <strong>انطباق نوع داده:</strong><br>
-                                        مقادیر مختصات باید به صورت عددی و رنگ/مدل به صورت رشته‌ای باشند
-                                    </li>
-                                </ul>
-                            </div>
+                            </pre>
+                            <button class="btn btn-sm btn-secondary mt-2" onclick="downloadSample()">دانلود نمونه کامل</button>
                         </div>
                     </div>
                 </div>
             </div>
-        
-                <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">
-                    شروع ارزیابی <span class="ms-2"></span>
-                </button>
-            </form>
         </div>
-        
+
         <script>
         function downloadSample() {
             const sampleData = {
                 "accuracy_required_fields": {
-                    "registration_prefix": "LicensePlate/RegistrationPrefix",
-                    "series_letter": "LicensePlate/SeriesLetter",
-                    "registration_number": "LicensePlate/RegistrationNumber",
-                    "province_code": "LicensePlate/ProvinceCode",
-                    "car_model": "CarModel",
-                    "car_color": "CarColor",
-                    "license_plate_coordinates": "LicensePlateCoordinates",
-                    "car_coordinates": "CarCoordinates",
-                    "car_coordinates_X": "CarCoordinates/X",
-                    "car_coordinates_Y": "CarCoordinates/Y",
-                    "car_coordinates_Width": "CarCoordinates/Width",
-                    "car_coordinates_Height": "CarCoordinates/Height"
-                }
+                        "registration_prefix": "LicensePlate/RegistrationPrefix",
+                        "series_letter": "LicensePlate/SeriesLetter",
+                        "registration_number": "LicensePlate/RegistrationNumber",
+                        "province_code": "LicensePlate/ProvinceCode",
+                        "car_model": "CarModel",
+                        "car_color": "CarColor",
+                        "license_plate_coordinates_x" : "LicensePlateCoordinates/X",
+                        "license_plate_coordinates_y" : "LicensePlateCoordinates/Y" ,
+                        "license_plate_coordinates_width" : "LicensePlateCoordinates/Width",
+                        "license_plate_coordinates_height" : "LicensePlateCoordinates/Height",
+                        "car_coordinates_x" : "CarCoordinates/X",
+                        "car_coordinates_y" : "CarCoordinates/Y",
+                        "car_coordinates_width" : "CarCoordinates/Width",
+                        "car_coordinates_height" : "CarCoordinates/Height"
+                        }
             };
             const blob = new Blob([JSON.stringify(sampleData, null, 2)], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
@@ -332,13 +292,39 @@
         }
         </script>
         
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-        </body>
-        </html>
-        
+        <!-- بخش آپلود JSON برای تعدادهای مورد انتظار -->
+        <div class="form-section mt-4">
+            <h3 class="text-primary mb-3">آپلود فایل تنظیمات تعدادهای مورد انتظار</h3>
+            
+            <div class="alert alert-warning">
+                <h4 class="alert-heading">توجه!</h4>
+                <p class="mb-0">
+                    فایل JSON باید حتما شامل کلیدهای زیر باشد:
+                    <span class="text-danger">CarColor</span> و 
+                    <span class="text-danger">CarModel</span>
+                </p>
+            </div>
 
+            <div class="card border-primary">
+                <div class="card-body">
+                    <!-- فرم آپلود -->
+                    <div class="mb-4">
+                        <label for="expectedCountsFile" class="form-label">فایل JSON را انتخاب کنید</label>
+                        <input 
+                            type="file" 
+                            class="form-control" 
+                            id="expectedCountsFile"
+                            name="expected_counts"
+                            accept=".json"
+                            required
+                        >
+                    </div>
 
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+                    <button type="submit" class="btn btn-success">ارسال اطلاعات</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
 </body>
 </html>
