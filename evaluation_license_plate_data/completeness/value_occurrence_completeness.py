@@ -98,7 +98,6 @@ def ValueOccurrenceCompleteness(xml_folder: str, expected_counts: dict, field_xp
 # field_xpaths = {
 #     "CarColor": "CarColor",
 #     "CarModel": "CarModel",
-#     "RegistrationPrefix": "LicensePlate/RegistrationPrefix"
 # }
 
 # results = ValueOccurrenceCompleteness(xml_folder, expected_counts, field_xpaths)

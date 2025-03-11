@@ -3,7 +3,7 @@ from .record_completeness import RecordCompleteness
 from .value_occurrence_completeness import ValueOccurrenceCompleteness
 import json
 
-def completeness(xml_folder: str, features: list, required_fields: list, expected_counts: dict, field_xpaths: dict) -> dict:
+def completeness(xml_folder: str, features: list, expected_counts: dict, field_xpaths: dict) -> dict:
     """
     Runs three completeness evaluations on the XML files in the specified folder:
       1. Feature Completeness Evaluation:
@@ -33,7 +33,7 @@ def completeness(xml_folder: str, features: list, required_fields: list, expecte
     feature_report = FeatureCompleteness(xml_folder, features)
     
     # 2. Record Completeness Evaluation
-    record_report = RecordCompleteness(xml_folder, required_fields)
+    record_report = RecordCompleteness(xml_folder, features)
     
     # 3. Value Occurrence Completeness Evaluation
     value_occurrence_report = ValueOccurrenceCompleteness(xml_folder, expected_counts, field_xpaths)
@@ -97,5 +97,5 @@ def completeness(xml_folder: str, features: list, required_fields: list, expecte
 #     "RegistrationPrefix": "LicensePlate/RegistrationPrefix"
 # }
 
-# results = completeness(xml_folder, features, required_fields, expected_counts, field_xpaths)
+# results = completeness(xml_folder, features, expected_counts, field_xpaths)
 # print(results)
