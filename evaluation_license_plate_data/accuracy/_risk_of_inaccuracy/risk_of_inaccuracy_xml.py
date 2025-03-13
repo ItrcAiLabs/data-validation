@@ -20,53 +20,53 @@ class RiskOfInaccuracyXml:
                     - "province_code": "LicensePlate/ProvinceCode"
                     - "car_model": "CarModel"
                     - "car_color": "CarColor"
-                    - "license_plate_coordinates": "LicensePlateCoordinates"
-                    - "car_coordinates": "CarCoordinates"
+                    - "license_plate_coordinates_x": "LicensePlateCoordinates/X"
+                    - "license_plate_coordinates_y": "LicensePlateCoordinates/Y"
+                    - "license_plate_coordinates_width": "LicensePlateCoordinates/Width"
+                    - "license_plate_coordinates_height": "LicensePlateCoordinates/Height"
+                    - "car_coordinates_x": "CarCoordinates/X"
+                    - "car_coordinates_y": "CarCoordinates/Y"
+                    - "car_coordinates_width": "CarCoordinates/Width"
+                    - "car_coordinates_height": "CarCoordinates/Height"
         """
         self.folder_path = folder_path
         self.image_folder = image_folder
         self.results = {}
         
-        # Load valid province codes from JSON
-        # with open("./_risk_of_inaccuracy/data/IranProvinceCodes.json", "r", encoding="utf-8") as file:
-        #     province_codes = json.load(file)
-
-
+        # Load valid province codes from JSON or use hardcoded version.
         province_codes =  {
-        "East Azerbaijan": [15, 25, 35],
-        "West Azerbaijan": [17, 27, 37],
-        "Ardabil": [91],
-        "Isfahan": [13, 23, 43, 53, 67],
-        "Alborz": [68, 78, 21, 38, 30],
-        "Ilam": [98],
-        "Bushehr": [48, 58],
-        "Tehran": [11, 22, 33, 44, 55, 66, 77, 88, 99, 10, 20, 40],
-        "Chaharmahal and Bakhtiari": [71, 81],
-        "South Khorasan": [32, 52],
-        "Razavi Khorasan": [12, 32, 42, 36, 74],
-        "North Khorasan": [32, 26],
-        "Khuzestan": [14, 24, 34],
-        "Zanjan": [87, 97],
-        "Semnan": [86, 96],
-        "Sistan and Baluchestan": [85, 95],
-        "Fars": [63, 73, 83, 93],
-        "Qazvin": [79, 89],
-        "Qom": [16],
-        "Kurdistan": [51, 61],
-        "Kerman": [45, 65, 75],
-        "Kermanshah": [19, 29],
-        "Kohgiluyeh and Boyer-Ahmad": [49],
-        "Golestan": [59, 69],
-        "Gilan": [46, 56, 76],
-        "Lorestan": [31, 41],
-        "Mazandaran": [62, 72, 82, 92],
-        "Markazi": [47, 57],
-        "Hormozgan": [84, 94],
-        "Hamedan": [18, 28],
-        "Yazd": [54, 64, 74]
-    }
-
-        # Convert to int for accurate comparison
+            "East Azerbaijan": [15, 25, 35],
+            "West Azerbaijan": [17, 27, 37],
+            "Ardabil": [91],
+            "Isfahan": [13, 23, 43, 53, 67],
+            "Alborz": [68, 78, 21, 38, 30],
+            "Ilam": [98],
+            "Bushehr": [48, 58],
+            "Tehran": [11, 22, 33, 44, 55, 66, 77, 88, 99, 10, 20, 40],
+            "Chaharmahal and Bakhtiari": [71, 81],
+            "South Khorasan": [32, 52],
+            "Razavi Khorasan": [12, 32, 42, 36, 74],
+            "North Khorasan": [32, 26],
+            "Khuzestan": [14, 24, 34],
+            "Zanjan": [87, 97],
+            "Semnan": [86, 96],
+            "Sistan and Baluchestan": [85, 95],
+            "Fars": [63, 73, 83, 93],
+            "Qazvin": [79, 89],
+            "Qom": [16],
+            "Kurdistan": [51, 61],
+            "Kerman": [45, 65, 75],
+            "Kermanshah": [19, 29],
+            "Kohgiluyeh and Boyer-Ahmad": [49],
+            "Golestan": [59, 69],
+            "Gilan": [46, 56, 76],
+            "Lorestan": [31, 41],
+            "Mazandaran": [62, 72, 82, 92],
+            "Markazi": [47, 57],
+            "Hormozgan": [84, 94],
+            "Hamedan": [18, 28],
+            "Yazd": [54, 64, 74]
+        }
         self.valid_province_codes = {int(code) for codes in province_codes.values() for code in codes}
         
         # Valid English letters for license plate series
@@ -93,8 +93,14 @@ class RiskOfInaccuracyXml:
             "province_code": "LicensePlate/ProvinceCode",
             "car_model": "CarModel",
             "car_color": "CarColor",
-            "license_plate_coordinates": "LicensePlateCoordinates",
-            "car_coordinates": "CarCoordinates"
+            "license_plate_coordinates_x": "LicensePlateCoordinates/X",
+            "license_plate_coordinates_y": "LicensePlateCoordinates/Y",
+            "license_plate_coordinates_width": "LicensePlateCoordinates/Width",
+            "license_plate_coordinates_height": "LicensePlateCoordinates/Height",
+            "car_coordinates_x": "CarCoordinates/X",
+            "car_coordinates_y": "CarCoordinates/Y",
+            "car_coordinates_width": "CarCoordinates/Width",
+            "car_coordinates_height": "CarCoordinates/Height"
         }
         self.required_fields = required_fields if required_fields is not None else default_required_fields
 
@@ -209,34 +215,65 @@ class RiskOfInaccuracyXml:
             try:
                 with Image.open(image_path) as img:
                     img_width, img_height = img.size
-                    # Validate license plate coordinates
-                    license_coords = self.get_coordinates(root, self.required_fields.get("license_plate_coordinates"))
+                    
+                    # Validate license plate coordinates using individual keys
+                    license_coords = {
+                        "x": self.get_coordinate_value(root, "license_plate_coordinates_x"),
+                        "y": self.get_coordinate_value(root, "license_plate_coordinates_y"),
+                        "width": self.get_coordinate_value(root, "license_plate_coordinates_width"),
+                        "height": self.get_coordinate_value(root, "license_plate_coordinates_height")
+                    }
                     if self.is_inside_image(license_coords, img_width, img_height):
-                        field_scores["license_plate_coordinates"] = 1
-                        field_errors["license_plate_coordinates"] = ""
+                        field_scores["license_plate_coordinates_x"] = 1
+                        field_scores["license_plate_coordinates_y"] = 1
+                        field_scores["license_plate_coordinates_width"] = 1
+                        field_scores["license_plate_coordinates_height"] = 1
                     else:
-                        field_scores["license_plate_coordinates"] = 0
+                        field_scores["license_plate_coordinates_x"] = 0
+                        field_scores["license_plate_coordinates_y"] = 0
+                        field_scores["license_plate_coordinates_width"] = 0
+                        field_scores["license_plate_coordinates_height"] = 0
                         field_errors["license_plate_coordinates"] = "License plate coordinates are out of image bounds or invalid."
                     
-                    # Validate car coordinates
-                    car_coords = self.get_coordinates(root, self.required_fields.get("car_coordinates"))
+                    # Validate car coordinates using individual keys
+                    car_coords = {
+                        "x": self.get_coordinate_value(root, "car_coordinates_x"),
+                        "y": self.get_coordinate_value(root, "car_coordinates_y"),
+                        "width": self.get_coordinate_value(root, "car_coordinates_width"),
+                        "height": self.get_coordinate_value(root, "car_coordinates_height")
+                    }
                     if self.is_inside_image(car_coords, img_width, img_height):
-                        field_scores["car_coordinates"] = 1
-                        field_errors["car_coordinates"] = ""
+                        field_scores["car_coordinates_x"] = 1
+                        field_scores["car_coordinates_y"] = 1
+                        field_scores["car_coordinates_width"] = 1
+                        field_scores["car_coordinates_height"] = 1
                     else:
-                        field_scores["car_coordinates"] = 0
+                        field_scores["car_coordinates_x"] = 0
+                        field_scores["car_coordinates_y"] = 0
+                        field_scores["car_coordinates_width"] = 0
+                        field_scores["car_coordinates_height"] = 0
                         field_errors["car_coordinates"] = "Car coordinates are out of image bounds or invalid."
             except Exception as e:
-                field_scores["license_plate_coordinates"] = 0
-                field_errors["license_plate_coordinates"] = f"Error processing image: {e}"
-                field_scores["car_coordinates"] = 0
-                field_errors["car_coordinates"] = f"Error processing image: {e}"
+                error_msg = f"Error processing image: {e}"
+                for key in ["license_plate_coordinates_x", "license_plate_coordinates_y", 
+                            "license_plate_coordinates_width", "license_plate_coordinates_height"]:
+                    field_scores[key] = 0
+                field_errors["license_plate_coordinates"] = error_msg
+                for key in ["car_coordinates_x", "car_coordinates_y", 
+                            "car_coordinates_width", "car_coordinates_height"]:
+                    field_scores[key] = 0
+                field_errors["car_coordinates"] = error_msg
         else:
-            field_scores["license_plate_coordinates"] = 0
+            for key in ["license_plate_coordinates_x", "license_plate_coordinates_y", 
+                        "license_plate_coordinates_width", "license_plate_coordinates_height"]:
+                field_scores[key] = 0
             field_errors["license_plate_coordinates"] = "Image not found for license plate coordinates validation."
-            field_scores["car_coordinates"] = 0
+            for key in ["car_coordinates_x", "car_coordinates_y", 
+                        "car_coordinates_width", "car_coordinates_height"]:
+                field_scores[key] = 0
             field_errors["car_coordinates"] = "Image not found for car coordinates validation."
         
+        # Compute overall file accuracy based on the average score of all individual fields.
         file_accuracy = sum(field_scores.values()) / total_fields
         
         # Remove empty error messages by creating a new dictionary
@@ -251,21 +288,12 @@ class RiskOfInaccuracyXml:
         element = root.find(path)
         return element.text.strip() if element is not None and element.text else None
 
-    def get_coordinates(self, root, base_path: str) -> dict:
+    def get_coordinate_value(self, root, field_key: str):
         """
-        Extract coordinates from XML and convert them to integers.
-        Expects sub-elements X, Y, Width, Height under the given base path.
+        Retrieve a coordinate value (as integer) based on the field key.
         """
-        x = self.get_text(root, f"{base_path}/X")
-        y = self.get_text(root, f"{base_path}/Y")
-        width = self.get_text(root, f"{base_path}/Width")
-        height = self.get_text(root, f"{base_path}/Height")
-        return {
-            "x": int(x) if x and x.isdigit() else None,
-            "y": int(y) if y and y.isdigit() else None,
-            "width": int(width) if width and width.isdigit() else None,
-            "height": int(height) if height and height.isdigit() else None
-        }
+        text = self.get_text(root, self.required_fields.get(field_key))
+        return int(text) if text and text.isdigit() else None
 
     def is_inside_image(self, coords: dict, img_width: int, img_height: int) -> bool:
         """
@@ -300,7 +328,6 @@ class RiskOfInaccuracyXml:
 
 
 
-
 # --- Example Usage ---
 # # Define folder paths.
 # xml_folder = "/home/reza/Desktop/data-validation/evaluation_license_plate_data/assets/xml"  # Folder containing XML files.
@@ -308,211 +335,276 @@ class RiskOfInaccuracyXml:
 
 # # Optionally, the user can supply a custom required_fields dictionary.
 # # If not provided, defaults (as specified in __init__) are used.
-# custom_required_fields = {
-#     "registration_prefix": "LicensePlate/RegistrationPrefix",
-#     "series_letter": "LicensePlate/SeriesLetter",
-#     "registration_number": "LicensePlate/RegistrationNumber",
-#     "province_code": "LicensePlate/ProvinceCode",
-#     "car_model": "CarModel",
-#     "car_color": "CarColor",
-#     "license_plate_coordinates": "LicensePlateCoordinates",
-#     "car_coordinates": "CarCoordinates"
-# }
+# custom_required_fields =  {
+#           "registration_prefix": "LicensePlate/RegistrationPrefix",
+#           "series_letter": "LicensePlate/SeriesLetter",
+#           "registration_number": "LicensePlate/RegistrationNumber",
+#           "province_code": "LicensePlate/ProvinceCode",
+#           "car_model": "CarModel",
+#           "car_color": "CarColor",
+#           "license_plate_coordinates_x" : "LicensePlateCoordinates/X",
+#           "license_plate_coordinates_y" : "LicensePlateCoordinates/Y" ,
+#           "license_plate_coordinates_width" : "LicensePlateCoordinates/Width",
+#           "license_plate_coordinates_height" : "LicensePlateCoordinates/Height",
+#           "car_coordinates_x" : "CarCoordinates/X",
+#           "car_coordinates_y" : "CarCoordinates/Y",
+#           "car_coordinates_width" : "CarCoordinates/Width",
+#           "car_coordinates_height" : "CarCoordinates/Height"
+#           }
 
 # validator = RiskOfInaccuracyXml(xml_folder, image_folder, required_fields=custom_required_fields)
 # validator.validate_files()
 # print(validator.get_risk_inaccuracy())
 
 #out put
-
-# {
-#     "1000423.xml": {
-#         "fields": {
-#             "registration_prefix": 1,
-#             "series_letter": 0,
-#             "registration_number": 0,
-#             "province_code": 1,
-#             "car_model": 1,
-#             "car_color": 1,
-#             "license_plate_coordinates": 0,
-#             "car_coordinates": 0
-#         },
-#         "errors": {
-#             "series_letter": "Invalid or missing series letter: 'Gh' (must be exactly one English letter).",
-#             "registration_number": "Invalid or missing registration number: '787' (must be exactly 2 digits without zeros).",
-#             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
-#             "car_coordinates": "Image not found for car coordinates validation."
-#         },
-#         "file_accuracy": 0.5
-#     },
-#     "1000393.xml": {
-#         "fields": {
-#             "registration_prefix": 1,
-#             "series_letter": 1,
-#             "registration_number": 0,
-#             "province_code": 1,
-#             "car_model": 1,
-#             "car_color": 1,
-#             "license_plate_coordinates": 0,
-#             "car_coordinates": 0
-#         },
-#         "errors": {
-#             "registration_number": "Invalid or missing registration number: '389' (must be exactly 2 digits without zeros).",
-#             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
-#             "car_coordinates": "Image not found for car coordinates validation."
-#         },
-#         "file_accuracy": 0.625
-#     },
-#     "1000376.xml": {
-#         "fields": {
-#             "registration_prefix": 1,
-#             "series_letter": 1,
-#             "registration_number": 0,
-#             "province_code": 1,
-#             "car_model": 1,
-#             "car_color": 1,
-#             "license_plate_coordinates": 0,
-#             "car_coordinates": 0
-#         },
-#         "errors": {
-#             "registration_number": "Invalid or missing registration number: '687' (must be exactly 2 digits without zeros).",
-#             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
-#             "car_coordinates": "Image not found for car coordinates validation."
-#         },
-#         "file_accuracy": 0.625
-#     },
-#     "1000396.xml": {
-#         "fields": {
-#             "registration_prefix": 1,
-#             "series_letter": 1,
-#             "registration_number": 0,
-#             "province_code": 1,
-#             "car_model": 0,
-#             "car_color": 1,
-#             "license_plate_coordinates": 0,
-#             "car_coordinates": 0
-#         },
-#         "errors": {
-#             "registration_number": "Invalid or missing registration number: '287' (must be exactly 2 digits without zeros).",
-#             "car_model": "Unexpected car model: 'Unknown'.",
-#             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
-#             "car_coordinates": "Image not found for car coordinates validation."
-#         },
-#         "file_accuracy": 0.5
-#     },
-#     "1000395.xml": {
-#         "fields": {
-#             "registration_prefix": 1,
-#             "series_letter": 1,
-#             "registration_number": 0,
-#             "province_code": 1,
-#             "car_model": 1,
-#             "car_color": 1,
-#             "license_plate_coordinates": 0,
-#             "car_coordinates": 0
-#         },
-#         "errors": {
-#             "registration_number": "Invalid or missing registration number: '259' (must be exactly 2 digits without zeros).",
-#             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
-#             "car_coordinates": "Image not found for car coordinates validation."
-#         },
-#         "file_accuracy": 0.625
-#     },
-#     "1000212.xml": {
-#         "fields": {
-#             "registration_prefix": 0,
-#             "series_letter": 1,
-#             "registration_number": 0,
-#             "province_code": 1,
-#             "car_model": 1,
-#             "car_color": 0,
-#             "license_plate_coordinates": 0,
-#             "car_coordinates": 0
-#         },
-#         "errors": {
-#             "registration_prefix": "Invalid or missing registration prefix: 'None' (must be exactly 2 digits without zeros).",
-#             "registration_number": "Invalid or missing registration number: '438' (must be exactly 2 digits without zeros).",
-#             "car_color": "Unusual car color: 'No car detected'.",
-#             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
-#             "car_coordinates": "Image not found for car coordinates validation."
-#         },
-#         "file_accuracy": 0.375
-#     },
-#     "1000229.xml": {
-#         "fields": {
-#             "registration_prefix": 1,
-#             "series_letter": 1,
-#             "registration_number": 0,
-#             "province_code": 1,
-#             "car_model": 1,
-#             "car_color": 1,
-#             "license_plate_coordinates": 0,
-#             "car_coordinates": 0
-#         },
-#         "errors": {
-#             "registration_number": "Invalid or missing registration number: '617' (must be exactly 2 digits without zeros).",
-#             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
-#             "car_coordinates": "Image not found for car coordinates validation."
-#         },
-#         "file_accuracy": 0.625
-#     },
-#     "1000244.xml": {
-#         "fields": {
-#             "registration_prefix": 1,
-#             "series_letter": 1,
-#             "registration_number": 0,
-#             "province_code": 1,
-#             "car_model": 1,
-#             "car_color": 1,
-#             "license_plate_coordinates": 0,
-#             "car_coordinates": 0
-#         },
-#         "errors": {
-#             "registration_number": "Invalid or missing registration number: '658' (must be exactly 2 digits without zeros).",
-#             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
-#             "car_coordinates": "Image not found for car coordinates validation."
-#         },
-#         "file_accuracy": 0.625
-#     },
-#     "1000211.xml": {
-#         "fields": {
-#             "registration_prefix": 1,
-#             "series_letter": 1,
-#             "registration_number": 0,
-#             "province_code": 1,
-#             "car_model": 1,
-#             "car_color": 1,
-#             "license_plate_coordinates": 0,
-#             "car_coordinates": 0
-#         },
-#         "errors": {
-#             "registration_number": "Invalid or missing registration number: '615' (must be exactly 2 digits without zeros).",
-#             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
-#             "car_coordinates": "Image not found for car coordinates validation."
-#         },
-#         "file_accuracy": 0.625
-#     },
-#     "1000198.xml": {
-#         "fields": {
-#             "registration_prefix": 0,
-#             "series_letter": 0,
-#             "registration_number": 0,
-#             "province_code": 1,
-#             "car_model": 1,
-#             "car_color": 1,
-#             "license_plate_coordinates": 0,
-#             "car_coordinates": 0
-#         },
-#         "errors": {
-#             "registration_prefix": "Invalid or missing registration prefix: '6522' (must be exactly 2 digits without zeros).",
-#             "series_letter": "Invalid or missing series letter: 'M11' (must be exactly one English letter).",
-#             "registration_number": "Invalid or missing registration number: '393' (must be exactly 2 digits without zeros).",
-#             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
-#             "car_coordinates": "Image not found for car coordinates validation."
-#         },
-#         "file_accuracy": 0.375
-#     },
-#     "summary": {
-#         "overall_accuracy": 0.55
-#     }
-# }
+    # {
+    #     "1000423.xml": {
+    #         "fields": {
+    #             "registration_prefix": 1,
+    #             "series_letter": 0,
+    #             "registration_number": 0,
+    #             "province_code": 1,
+    #             "car_model": 1,
+    #             "car_color": 1,
+    #             "license_plate_coordinates_x": 0,
+    #             "license_plate_coordinates_y": 0,
+    #             "license_plate_coordinates_width": 0,
+    #             "license_plate_coordinates_height": 0,
+    #             "car_coordinates_x": 0,
+    #             "car_coordinates_y": 0,
+    #             "car_coordinates_width": 0,
+    #             "car_coordinates_height": 0
+    #         },
+    #         "errors": {
+    #             "series_letter": "Invalid or missing series letter: 'Gh' (must be exactly one English letter).",
+    #             "registration_number": "Invalid or missing registration number: '787' (must be exactly 2 digits without zeros).",
+    #             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
+    #             "car_coordinates": "Image not found for car coordinates validation."
+    #         },
+    #         "file_accuracy": 0.2857142857142857
+    #     },
+    #     "1000393.xml": {
+    #         "fields": {
+    #             "registration_prefix": 1,
+    #             "series_letter": 1,
+    #             "registration_number": 0,
+    #             "province_code": 1,
+    #             "car_model": 1,
+    #             "car_color": 1,
+    #             "license_plate_coordinates_x": 0,
+    #             "license_plate_coordinates_y": 0,
+    #             "license_plate_coordinates_width": 0,
+    #             "license_plate_coordinates_height": 0,
+    #             "car_coordinates_x": 0,
+    #             "car_coordinates_y": 0,
+    #             "car_coordinates_width": 0,
+    #             "car_coordinates_height": 0
+    #         },
+    #         "errors": {
+    #             "registration_number": "Invalid or missing registration number: '389' (must be exactly 2 digits without zeros).",
+    #             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
+    #             "car_coordinates": "Image not found for car coordinates validation."
+    #         },
+    #         "file_accuracy": 0.35714285714285715
+    #     },
+    #     "1000376.xml": {
+    #         "fields": {
+    #             "registration_prefix": 1,
+    #             "series_letter": 1,
+    #             "registration_number": 0,
+    #             "province_code": 1,
+    #             "car_model": 1,
+    #             "car_color": 1,
+    #             "license_plate_coordinates_x": 0,
+    #             "license_plate_coordinates_y": 0,
+    #             "license_plate_coordinates_width": 0,
+    #             "license_plate_coordinates_height": 0,
+    #             "car_coordinates_x": 0,
+    #             "car_coordinates_y": 0,
+    #             "car_coordinates_width": 0,
+    #             "car_coordinates_height": 0
+    #         },
+    #         "errors": {
+    #             "registration_number": "Invalid or missing registration number: '687' (must be exactly 2 digits without zeros).",
+    #             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
+    #             "car_coordinates": "Image not found for car coordinates validation."
+    #         },
+    #         "file_accuracy": 0.35714285714285715
+    #     },
+    #     "1000396.xml": {
+    #         "fields": {
+    #             "registration_prefix": 1,
+    #             "series_letter": 1,
+    #             "registration_number": 0,
+    #             "province_code": 1,
+    #             "car_model": 0,
+    #             "car_color": 1,
+    #             "license_plate_coordinates_x": 0,
+    #             "license_plate_coordinates_y": 0,
+    #             "license_plate_coordinates_width": 0,
+    #             "license_plate_coordinates_height": 0,
+    #             "car_coordinates_x": 0,
+    #             "car_coordinates_y": 0,
+    #             "car_coordinates_width": 0,
+    #             "car_coordinates_height": 0
+    #         },
+    #         "errors": {
+    #             "registration_number": "Invalid or missing registration number: '287' (must be exactly 2 digits without zeros).",
+    #             "car_model": "Unexpected car model: 'Unknown'.",
+    #             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
+    #             "car_coordinates": "Image not found for car coordinates validation."
+    #         },
+    #         "file_accuracy": 0.2857142857142857
+    #     },
+    #     "1000395.xml": {
+    #         "fields": {
+    #             "registration_prefix": 1,
+    #             "series_letter": 1,
+    #             "registration_number": 0,
+    #             "province_code": 1,
+    #             "car_model": 1,
+    #             "car_color": 1,
+    #             "license_plate_coordinates_x": 0,
+    #             "license_plate_coordinates_y": 0,
+    #             "license_plate_coordinates_width": 0,
+    #             "license_plate_coordinates_height": 0,
+    #             "car_coordinates_x": 0,
+    #             "car_coordinates_y": 0,
+    #             "car_coordinates_width": 0,
+    #             "car_coordinates_height": 0
+    #         },
+    #         "errors": {
+    #             "registration_number": "Invalid or missing registration number: '259' (must be exactly 2 digits without zeros).",
+    #             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
+    #             "car_coordinates": "Image not found for car coordinates validation."
+    #         },
+    #         "file_accuracy": 0.35714285714285715
+    #     },
+    #     "1000212.xml": {
+    #         "fields": {
+    #             "registration_prefix": 0,
+    #             "series_letter": 1,
+    #             "registration_number": 0,
+    #             "province_code": 1,
+    #             "car_model": 1,
+    #             "car_color": 0,
+    #             "license_plate_coordinates_x": 0,
+    #             "license_plate_coordinates_y": 0,
+    #             "license_plate_coordinates_width": 0,
+    #             "license_plate_coordinates_height": 0,
+    #             "car_coordinates_x": 0,
+    #             "car_coordinates_y": 0,
+    #             "car_coordinates_width": 0,
+    #             "car_coordinates_height": 0
+    #         },
+    #         "errors": {
+    #             "registration_prefix": "Invalid or missing registration prefix: 'None' (must be exactly 2 digits without zeros).",
+    #             "registration_number": "Invalid or missing registration number: '438' (must be exactly 2 digits without zeros).",
+    #             "car_color": "Unusual car color: 'No car detected'.",
+    #             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
+    #             "car_coordinates": "Image not found for car coordinates validation."
+    #         },
+    #         "file_accuracy": 0.21428571428571427
+    #     },
+    #     "1000229.xml": {
+    #         "fields": {
+    #             "registration_prefix": 1,
+    #             "series_letter": 1,
+    #             "registration_number": 0,
+    #             "province_code": 1,
+    #             "car_model": 1,
+    #             "car_color": 1,
+    #             "license_plate_coordinates_x": 0,
+    #             "license_plate_coordinates_y": 0,
+    #             "license_plate_coordinates_width": 0,
+    #             "license_plate_coordinates_height": 0,
+    #             "car_coordinates_x": 0,
+    #             "car_coordinates_y": 0,
+    #             "car_coordinates_width": 0,
+    #             "car_coordinates_height": 0
+    #         },
+    #         "errors": {
+    #             "registration_number": "Invalid or missing registration number: '617' (must be exactly 2 digits without zeros).",
+    #             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
+    #             "car_coordinates": "Image not found for car coordinates validation."
+    #         },
+    #         "file_accuracy": 0.35714285714285715
+    #     },
+    #     "1000244.xml": {
+    #         "fields": {
+    #             "registration_prefix": 1,
+    #             "series_letter": 1,
+    #             "registration_number": 0,
+    #             "province_code": 1,
+    #             "car_model": 1,
+    #             "car_color": 1,
+    #             "license_plate_coordinates_x": 0,
+    #             "license_plate_coordinates_y": 0,
+    #             "license_plate_coordinates_width": 0,
+    #             "license_plate_coordinates_height": 0,
+    #             "car_coordinates_x": 0,
+    #             "car_coordinates_y": 0,
+    #             "car_coordinates_width": 0,
+    #             "car_coordinates_height": 0
+    #         },
+    #         "errors": {
+    #             "registration_number": "Invalid or missing registration number: '658' (must be exactly 2 digits without zeros).",
+    #             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
+    #             "car_coordinates": "Image not found for car coordinates validation."
+    #         },
+    #         "file_accuracy": 0.35714285714285715
+    #     },
+    #     "1000211.xml": {
+    #         "fields": {
+    #             "registration_prefix": 1,
+    #             "series_letter": 1,
+    #             "registration_number": 0,
+    #             "province_code": 1,
+    #             "car_model": 1,
+    #             "car_color": 1,
+    #             "license_plate_coordinates_x": 0,
+    #             "license_plate_coordinates_y": 0,
+    #             "license_plate_coordinates_width": 0,
+    #             "license_plate_coordinates_height": 0,
+    #             "car_coordinates_x": 0,
+    #             "car_coordinates_y": 0,
+    #             "car_coordinates_width": 0,
+    #             "car_coordinates_height": 0
+    #         },
+    #         "errors": {
+    #             "registration_number": "Invalid or missing registration number: '615' (must be exactly 2 digits without zeros).",
+    #             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
+    #             "car_coordinates": "Image not found for car coordinates validation."
+    #         },
+    #         "file_accuracy": 0.35714285714285715
+    #     },
+    #     "1000198.xml": {
+    #         "fields": {
+    #             "registration_prefix": 0,
+    #             "series_letter": 0,
+    #             "registration_number": 0,
+    #             "province_code": 1,
+    #             "car_model": 1,
+    #             "car_color": 1,
+    #             "license_plate_coordinates_x": 0,
+    #             "license_plate_coordinates_y": 0,
+    #             "license_plate_coordinates_width": 0,
+    #             "license_plate_coordinates_height": 0,
+    #             "car_coordinates_x": 0,
+    #             "car_coordinates_y": 0,
+    #             "car_coordinates_width": 0,
+    #             "car_coordinates_height": 0
+    #         },
+    #         "errors": {
+    #             "registration_prefix": "Invalid or missing registration prefix: '6522' (must be exactly 2 digits without zeros).",
+    #             "series_letter": "Invalid or missing series letter: 'M11' (must be exactly one English letter).",
+    #             "registration_number": "Invalid or missing registration number: '3293' (must be exactly 2 digits without zeros).",
+    #             "license_plate_coordinates": "Image not found for license plate coordinates validation.",
+    #             "car_coordinates": "Image not found for car coordinates validation."
+    #         },
+    #         "file_accuracy": 0.21428571428571427
+    #     },
+    #     "summary": {
+    #         "overall_accuracy": 0.3142857142857143
+    #     }
+    # }
