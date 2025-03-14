@@ -6,6 +6,7 @@
     <title>گزارش جامع ارزیابی داده‌های پلاک خودرو</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { background-color: #f5f6fa; font-family: 'Vazir', sans-serif; }
         .container { max-width: 1400px; }
@@ -23,302 +24,499 @@
         .error-badge { font-size: 0.8em; }
         .alert-icon { font-size: 1.5em; margin-left: 10px; }
         .bg-purple { background-color: #6f42c1; }
+        .chart-container { position: relative; height: 400px; width: 100%; }
     </style>
 </head>
 <body>
 <div class="container py-5">
     <h1 class="text-center mb-5 text-primary"><i class="fas fa-file-alt"></i> گزارش جامع ارزیابی داده‌های پلاک خودرو</h1>
 
-    {% if report is string %}
-        <div class="alert alert-danger d-flex align-items-center">
-            <i class="fas fa-exclamation-triangle alert-icon"></i>
-            <div>{{ report }}</div>
-        </div>
-    {% else %}
-        <!-- بخش کامل بودن داده‌ها -->
-        <div class="section-title"><i class="fas fa-check-circle me-2"></i>میزان کامل بودن داده‌ها</div>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-header bg-primary text-white">
-                        <i class="fas fa-clipboard-list me-2"></i>خلاصه کامل بودن
+    <!-- تعریف ترجمه‌ها -->
+    {% set field_translations = {
+        'LicensePlate/RegistrationPrefix': 'پیش‌شماره پلاک',
+        'LicensePlate/SeriesLetter': 'حرف سری پلاک',
+        'LicensePlate/RegistrationNumber': 'شماره ثبت پلاک',
+        'LicensePlate/ProvinceCode': 'کد استان پلاک',
+        'CarModel': 'مدل خودرو',
+        'CarColor': 'رنگ خودرو',
+        'LicensePlateCoordinates/X': 'X مختصات پلاک',
+        'LicensePlateCoordinates/Y': 'Y مختصات پلاک',
+        'LicensePlateCoordinates/Width': 'عرض مختصات پلاک',
+        'LicensePlateCoordinates/Height': 'ارتفاع مختصات پلاک',
+        'CarCoordinates/X': 'X مختصات خودرو',
+        'CarCoordinates/Y': 'Y مختصات خودرو',
+        'CarCoordinates/Width': 'عرض مختصات خودرو',
+        'CarCoordinates/Height': 'ارتفاع مختصات خودرو',
+        'registration_prefix': 'پیش‌شماره پلاک',
+        'series_letter': 'حرف سری پلاک',
+        'registration_number': 'شماره ثبت پلاک',
+        'province_code': 'کد استان پلاک',
+        'car_model': 'مدل خودرو',
+        'car_color': 'رنگ خودرو',
+        'license_plate_coordinates_x': 'X مختصات پلاک',
+        'license_plate_coordinates_y': 'Y مختصات پلاک',
+        'license_plate_coordinates_width': 'عرض مختصات پلاک',
+        'license_plate_coordinates_height': 'ارتفاع مختصات پلاک',
+        'car_coordinates_x': 'X مختصات خودرو',
+        'car_coordinates_y': 'Y مختصات خودرو',
+        'car_coordinates_width': 'عرض مختصات خودرو',
+        'car_coordinates_height': 'ارتفاع مختصات خودرو',
+        'dimensions': 'ابعاد تصویر',
+        'file_type': 'نوع فایل',
+        'file_size': 'حجم فایل'
+    } %}
+
+    <!-- بخش کامل بودن داده‌ها -->
+    <div class="section-title"><i class="fas fa-check-circle me-2"></i>میزان کامل بودن داده‌ها</div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-clipboard-list me-2"></i>خلاصه کامل بودن
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">میانگین کلی:</h5>
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ report.completeness.feature_completeness.summary.feature_completeness * 100 }}%">
+                            {{ "%.2f"|format(report.completeness.feature_completeness.summary.feature_completeness * 100) }}%
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title">میانگین کلی:</h5>
-                        <div class="progress mb-4">
-                            <div class="progress-bar bg-success" role="progressbar" 
-                                 style="width: {{ report.completeness.feature_completeness.summary.feature_completeness * 100 }}%">
+                    <div class="list-group">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>کامل بودن فیلدها</span>
+                            <span class="badge bg-success badge-score">
                                 {{ "%.2f"|format(report.completeness.feature_completeness.summary.feature_completeness * 100) }}%
-                            </div>
+                            </span>
                         </div>
-                        <div class="list-group">
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>کامل بودن فیلدها</span>
-                                <span class="badge bg-success badge-score">
-                                    {{ "%.2f"|format(report.completeness.feature_completeness.summary.feature_completeness * 100) }}%
-                                </span>
-                            </div>
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>کامل بودن رکوردها</span>
-                                <span class="badge bg-info badge-score">
-                                    {{ "%.2f"|format(report.completeness.record_completeness.summary.record_completeness * 100) }}%
-                                </span>
-                            </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>کامل بودن رکوردها</span>
+                            <span class="badge bg-info badge-score">
+                                {{ "%.2f"|format(report.completeness.record_completeness.summary.record_completeness * 100) }}%
+                            </span>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-8">
-                <div class="card h-100">
-                    <div class="card-header bg-info text-white">
-                        <i class="fas fa-file-excel me-2"></i>جزئیات فیلدهای مفقود
-                    </div>
-                    <div class="card-body table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>نام فیلد</th>
-                                    <th class="text-center">میزان کامل بودن</th>
-                                    <th>فایل‌های مفقود</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for field, details in report.completeness.feature_completeness.items() if field != 'summary' %}
-                                <tr>
-                                    <td>{{ field_translations.get(field, field) }}</td>
-                                    <td class="text-center">
-                                        <div class="progress" style="height: 20px;">
-                                            <div class="progress-bar {{ 'bg-success' if details.feature_completeness_file == 1 else 'bg-warning' }}" 
-                                                 style="width: {{ details.feature_completeness_file * 100 }}%">
-                                                {{ "%.1f"|format(details.feature_completeness_file * 100) }}%
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {% if details.missing_files %}
-                                        <span class="badge bg-danger error-badge">
-                                            {{ details.missing_files|length }} فایل
-                                        </span>
-                                        {{ details.missing_files | join('، ') }}
-                                        {% else %}
-                                        <span class="text-success">-</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- بخش دقت داده‌ها -->
-        <div class="section-title"><i class="fas fa-search me-2"></i>بررسی دقت داده‌ها</div>
-        
-        <!-- بخش ریسک خطا در XML -->
-        <div class="section-title"><i class="fas fa-file-code me-2"></i>ریسک خطا در XML</div>
-        <div class="card mb-4">
-            <div class="card-header bg-dark text-white">
-                <i class="fas fa-bug me-2"></i>مشکلات ساختاری فایل‌های XML
-            </div>
-            <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="alert alert-danger">
-                            <h5><i class="fas fa-times-circle me-2"></i>میانگین خطاها</h5>
-                            <div class="display-4">{{ "%.1f"|format((1 - report.accuracy.data_model_accuracy_xml.overall_accuracy) * 100) }}%</div>
-                        </div>
-                    </div>
-                    <div class="col-md-8">
-                        <div class="alert alert-warning">
-                            <h5><i class="fas fa-exclamation-triangle me-2"></i>رایج‌ترین مشکلات</h5>
-                            <div class="row">
-                                {% set top_errors = {'count': 0, 'fields': []} %}
-                                {% for file, details in report.accuracy.data_model_accuracy_xml.items() if file != 'overall_accuracy' %}
-                                    {% for field in details.missing_fields %}
-                                        {% if field not in top_errors.fields %}
-                                            {% set _ = top_errors.fields.append(field) %}
-                                            {% set _ = top_errors.update({'count': top_errors.count + 1}) %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endfor %}
-                                {% for field in top_errors.fields[:4] %}
-                                <div class="col-6 col-md-3 mb-2">
-                                    <span class="badge bg-danger">
-                                        {{ field_translations.get(field, field) }}
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-file-excel me-2"></i>جزئیات فیلدهای مفقود
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>نام فیلد</th>
+                                <th class="text-center">میزان کامل بودن</th>
+                                <th>فایل‌های مفقود</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for field, details in report.completeness.feature_completeness.items() if field != 'summary' %}
+                            <tr>
+                                <td>{{ field_translations.get(field, field) }}</td>
+                                <td class="text-center">
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {{ 'bg-success' if details.feature_completeness_file == 1 else 'bg-warning' }}" 
+                                             style="width: {{ details.feature_completeness_file * 100 }}%">
+                                            {{ "%.1f"|format(details.feature_completeness_file * 100) }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if details.missing_files %}
+                                    <span class="badge bg-danger error-badge">
+                                        {{ details.missing_files|length }} فایل
                                     </span>
+                                    {{ details.missing_files | join('، ') }}
+                                    {% else %}
+                                    <span class="text-success">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بخش کامل بودن مقادیر -->
+    <div class="section-title"><i class="fas fa-chart-pie me-2"></i>کامل بودن مقادیر</div>
+    <div class="row g-4">
+        <!-- کارت مدل خودرو -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-car me-2"></i>مدل خودرو
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">میانگین کامل بودن: 90%</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Peugeot-405
+                            <span class="badge bg-primary rounded-pill">4 / 10</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Peugeot-207i
+                            <span class="badge bg-primary rounded-pill">2 / 1</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Unknown
+                            <span class="badge bg-primary rounded-pill">1 / 1</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Peugeot-206
+                            <span class="badge bg-primary rounded-pill">1 / 1</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Pride-131
+                            <span class="badge bg-primary rounded-pill">1 / 1</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Peugeot-pars
+                            <span class="badge bg-primary rounded-pill">1 / 1</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- کارت رنگ خودرو -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-palette me-2"></i>رنگ خودرو
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">میانگین کامل بودن: 93.33%</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            green
+                            <span class="badge bg-primary rounded-pill">2 / 1</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            grey
+                            <span class="badge bg-primary rounded-pill">1 / 1</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            white
+                            <span class="badge bg-primary rounded-pill">3 / 5</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            silver
+                            <span class="badge bg-primary rounded-pill">2 / 1</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            No car detected
+                            <span class="badge bg-primary rounded-pill">1 / 1</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            red
+                            <span class="badge bg-primary rounded-pill">1 / 1</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نمودارهای ستونی برای CarColor و CarModel -->
+    <div class="section-title"><i class="fas fa-chart-bar me-2"></i>مقایسه Expected و Count</div>
+    <div class="row g-4">
+        <!-- نمودار برای CarColor -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-chart-bar me-2"></i>رنگ خودروها
+                </div>
+                <div class="card-body">
+                    <canvas id="carColorChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- نمودار برای CarModel -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-chart-bar me-2"></i>مدل خودروها
+                </div>
+                <div class="card-body">
+                    <canvas id="carModelChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- اسکریپت برای رسم نمودارها -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // فرض می‌کنیم داده‌های JSON در report.value_occurrence_completeness موجود است
+            const jsonData = report.value_occurrence_completeness;
+
+            // استخراج داده‌ها برای CarColor
+            const carColorLabels = Object.keys(jsonData.CarColor.values);
+            const carColorExpected = carColorLabels.map(label => jsonData.CarColor.values[label].expected);
+            const carColorCount = carColorLabels.map(label => jsonData.CarColor.values[label].count);
+
+            // استخراج داده‌ها برای CarModel
+            const carModelLabels = Object.keys(jsonData.CarModel.values);
+            const carModelExpected = carModelLabels.map(label => jsonData.CarModel.values[label].expected);
+            const carModelCount = carModelLabels.map(label => jsonData.CarModel.values[label].count);
+
+            // تنظیمات نمودار CarColor
+            const carColorCtx = document.getElementById('carColorChart').getContext('2d');
+            new Chart(carColorCtx, {
+                type: 'bar',
+                data: {
+                    labels: carColorLabels,
+                    datasets: [
+                        {
+                            label: 'Expected',
+                            data: carColorExpected,
+                            backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Count',
+                            data: carColorCount,
+                            backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'تعداد' }
+                        },
+                        x: {
+                            title: { display: true, text: 'رنگ خودرو' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'مقایسه Expected و Count برای رنگ خودروها' }
+                    }
+                }
+            });
+
+            // تنظیمات نمودار CarModel
+            const carModelCtx = document.getElementById('carModelChart').getContext('2d');
+            new Chart(carModelCtx, {
+                type: 'bar',
+                data: {
+                    labels: carModelLabels,
+                    datasets: [
+                        {
+                            label: 'Expected',
+                            data: carModelExpected,
+                            backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Count',
+                            data: carModelCount,
+                            backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'تعداد' }
+                        },
+                        x: {
+                            title: { display: true, text: 'مدل خودرو' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'مقایسه Expected و Count برای مدل خودروها' }
+                    }
+                }
+            });
+        });
+    </script>
+
+    <!-- بخش دقت داده‌ها -->
+    <div class="section-title"><i class="fas fa-search me-2"></i>بررسی دقت داده‌ها</div>
+    <!-- دقت مدل داده XML -->
+    <div class="section-title"><i class="fas fa-database me-2"></i>دقت مدل داده XML</div>
+    <div class="card mb-4">
+        <div class="card-header bg-purple text-white">
+            <i class="fas fa-sitemap me-2"></i>مغایرت‌های ساختاری XML
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <h5><i class="fas fa-times-circle me-2"></i>میانگین دقت</h5>
+                <div class="display-4">{{ "%.1f"|format(report.accuracy.data_model_accuracy_xml.overall_accuracy * 100) }}%</div>
+            </div>
+            <div class="accordion" id="xmlAccuracyAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseXmlAccuracy">
+                            <i class="fas fa-file-alt me-2"></i>نمایش جزئیات مغایرت‌ها
+                        </button>
+                    </h2>
+                    <div id="collapseXmlAccuracy" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <div class="row row-cols-1 row-cols-md-2 g-4">
+                                {% for file, details in report.accuracy.data_model_accuracy_xml.items() if file != 'overall_accuracy' %}
+                                <div class="col">
+                                    <div class="card h-100 border-danger">
+                                        <div class="card-header bg-danger text-white py-2">
+                                            {{ file }}
+                                            <span class="badge bg-warning float-left">{{ details.missing_fields|length }} فیلد مفقود</span>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="list-unstyled">
+                                                {% for field in details.missing_fields %}
+                                                <li class="mb-2">
+                                                    <i class="fas fa-times-circle text-danger me-2"></i>
+                                                    {{ field_translations.get(field, field) }}
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
                                 {% endfor %}
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <div class="accordion" id="xmlRiskAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
-                                    data-bs-target="#collapseXmlErrors">
-                                <i class="fas fa-file-alt me-2"></i>نمایش جزئیات خطاهای XML
-                            </button>
-                        </h2>
-                        <div id="collapseXmlErrors" class="accordion-collapse collapse">
-                            <div class="accordion-body">
-                                <div class="row row-cols-1 row-cols-md-2 g-4">
-                                    {% for file, details in report.accuracy.data_model_accuracy_xml.items() if file != 'overall_accuracy' %}
-                                    <div class="col">
-                                        <div class="card h-100 border-dark">
-                                            <div class="card-header bg-dark text-white py-2">
-                                                {{ file }}
-                                                <span class="badge bg-danger float-left">
-                                                    {{ details.missing_fields|length }} خطا
-                                                </span>
-                                            </div>
-                                            <div class="card-body">
-                                                <ul class="list-group list-group-flush">
-                                                    {% for field in details.missing_fields %}
-                                                    <li class="list-group-item d-flex justify-content-between align-items-start">
-                                                        <div>
-                                                            <i class="fas fa-times-circle text-danger me-2"></i>
-                                                            {{ field_translations.get(field, field) }}
-                                                        </div>
-                                                        <span class="badge bg-warning text-dark">مفقود</span>
-                                                    </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
+    <!-- دقت مدل داده تصاویر -->
+    <div class="section-title"><i class="fas fa-image me-2"></i>دقت مدل داده تصاویر</div>
+    <div class="card mb-4">
+        <div class="card-header bg-purple text-white">
+            <i class="fas fa-sitemap me-2"></i>مغایرت‌های ساختاری تصاویر
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <h5><i class="fas fa-times-circle me-2"></i>میانگین دقت</h5>
+                <div class="display-4">{{ "%.1f"|format(report.accuracy.data_model_accuracy_img.summary.overall_accuracy * 100) }}%</div>
+            </div>
+            <div class="accordion" id="imgAccuracyAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseImgAccuracy">
+                            <i class="fas fa-images me-2"></i>نمایش جزئیات مغایرت‌ها
+                        </button>
+                    </h2>
+                    <div id="collapseImgAccuracy" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <div class="row row-cols-1 row-cols-md-2 g-4">
+                                {% for file, details in report.accuracy.data_model_accuracy_img.items() if file != 'summary' %}
+                                <div class="col">
+                                    <div class="card h-100 border-danger">
+                                        <div class="card-header bg-danger text-white py-2">
+                                            {{ file }}
+                                            <span class="badge bg-warning float-left">{{ details.missing_metadata|length }} متادیتا مفقود</span>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="list-unstyled">
+                                                {% for field in details.missing_metadata %}
+                                                <li class="mb-2">
+                                                    <i class="fas fa-times-circle text-danger me-2"></i>
+                                                    {{ field_translations.get(field, field) }}
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
                                         </div>
                                     </div>
-                                    {% endfor %}
                                 </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- سایر بخش‌های دقت داده‌ها -->
-        <!-- بخش Risk of Inaccuracy در تصاویر -->
-        <div class="section-title"><i class="fas fa-exclamation-triangle me-2"></i>ریسک خطا در تصاویر</div>
-        <div class="card mb-4">
-            <div class="card-header bg-danger text-white">
-                <i class="fas fa-image me-2"></i>مشکلات کیفی تصاویر
-            </div>
-            <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="alert alert-warning">
-                            <h5><i class="fas fa-chart-pie me-2"></i>میانگین ریسک خطا</h5>
-                            <div class="display-4">{{ "%.1f"|format(report.accuracy.risk_of_inaccuracy_img.summary.overall_accuracy * 100) }}%</div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="alert alert-info">
-                            <h5><i class="fas fa-info-circle me-2"></i>رایج‌ترین خطا</h5>
-                            <div class="text-truncate">مشکل ابعاد تصویر ({{ report.accuracy.risk_of_inaccuracy_img|length - 1 }} فایل)</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion" id="imageRiskAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
-                                    data-bs-target="#collapseImageErrors">
-                                <i class="fas fa-images me-2"></i>نمایش جزئیات خطاهای تصاویر
-                            </button>
-                        </h2>
-                        <div id="collapseImageErrors" class="accordion-collapse collapse">
-                            <div class="accordion-body">
-                                <div class="row row-cols-1 row-cols-md-2 g-4">
-                                    {% for file, details in report.accuracy.risk_of_inaccuracy_img.items() if file != 'summary' %}
-                                    <div class="col">
-                                        <div class="card h-100 border-danger">
-                                            <div class="card-header bg-danger text-white py-2">
-                                                {{ file }}
-                                            </div>
-                                            <div class="card-body">
-                                                <ul class="list-unstyled">
-                                                    {% for field, error in details.errors.items() %}
-                                                    <li class="mb-2">
-                                                        <i class="fas fa-times-circle text-danger me-2"></i>
-                                                        <strong>{{ field_translations.get(field, field) }}:</strong>
-                                                        <span class="text-muted">{{ error }}</span>
-                                                    </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- ریسک خطا در XML -->
+    <div class="section-title"><i class="fas fa-file-code me-2"></i>ریسک خطا در XML</div>
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <i class="fas fa-bug me-2"></i>مشکلات ساختاری فایل‌های XML
         </div>
-
-        <!-- بخش Syntactic Accuracy -->
-        <div class="section-title"><i class="fas fa-code me-2"></i>دقت نحوی (قالب داده‌ها)</div>
-        <div class="card mb-4">
-            <div class="card-header bg-warning text-dark">
-                <i class="fas fa-file-code me-2"></i>خطاهای فرمت داده‌ها
-            </div>
-            <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="alert alert-success">
-                            <h5><i class="fas fa-percentage me-2"></i>میانگین دقت</h5>
-                            <div class="display-4">{{ "%.1f"|format(report.accuracy.syntactic_accuracy.summary.overall_accuracy * 100) }}%</div>
-                        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="alert alert-danger">
+                        <h5><i class="fas fa-times-circle me-2"></i>میانگین دقت</h5>
+                        <div class="display-4">{{ "%.1f"|format(report.accuracy.risk_of_inaccuracy_xml.summary.overall_accuracy * 100) }}%</div>
                     </div>
-                    <div class="col-md-8">
-                        <div class="alert alert-danger">
-                            <h5><i class="fas fa-exclamation-circle me-2"></i>فایل‌های مشکل‌دار</h5>
-                            <div class="d-flex flex-wrap gap-2">
-                                {% for file, details in report.accuracy.syntactic_accuracy.items() if file != 'summary' and details.errors %}
+                </div>
+                <div class="col-md-8">
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-exclamation-triangle me-2"></i>رایج‌ترین مشکلات</h5>
+                        <div class="row">
+                            {% set top_errors = {'count': 0, 'fields': []} %}
+                            {% for file, details in report.accuracy.risk_of_inaccuracy_xml.items() if file != 'summary' %}
+                                {% for field in details.errors.keys() %}
+                                    {% if field not in top_errors.fields %}
+                                        {% set _ = top_errors.fields.append(field) %}
+                                        {% set _ = top_errors.update({'count': top_errors.count + 1}) %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                            {% for field in top_errors.fields[:4] %}
+                            <div class="col-6 col-md-3 mb-2">
                                 <span class="badge bg-danger">
-                                    {{ file }} ({{ details.errors|length }} خطا)
+                                    {{ field_translations.get(field, field) }}
                                 </span>
-                                {% endfor %}
                             </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
-
-                <div class="accordion" id="syntacticErrors">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
-                                    data-bs-target="#collapseSyntactic">
-                                <i class="fas fa-file-excel me-2"></i>نمایش جزئیات خطاهای فرمت
-                            </button>
-                        </h2>
-                        <div id="collapseSyntactic" class="accordion-collapse collapse">
-                            <div class="accordion-body">
-                                {% for file, details in report.accuracy.syntactic_accuracy.items() if file != 'summary' and details.errors %}
-                                <div class="card mb-3 border-danger">
-                                    <div class="card-header bg-danger text-white py-2">
-                                        {{ file }}
-                                    </div>
-                                    <div class="card-body">
-                                        <ul class="list-group list-group-flush">
-                                            {% for field, error in details.errors.items() %}
-                                            <li class="list-group-item">
-                                                <div class="d-flex justify-content-between align-items-start">
-                                                    <div>
-                                                        <i class="fas fa-times-circle text-danger me-2"></i>
-                                                        <strong>{{ field_translations.get(field, field) }}:</strong>
-                                                        <span class="text-muted">{{ error }}</span>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            {% endfor %}
-                                        </ul>
+            </div>
+            <div class="accordion" id="xmlRiskAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseXmlErrors">
+                            <i class="fas fa-file-alt me-2"></i>نمایش جزئیات خطاها
+                        </button>
+                    </h2>
+                    <div id="collapseXmlErrors" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <div class="row row-cols-1 row-cols-md-2 g-4">
+                                {% for file, details in report.accuracy.risk_of_inaccuracy_xml.items() if file != 'summary' %}
+                                <div class="col">
+                                    <div class="card h-100 border-dark">
+                                        <div class="card-header bg-dark text-white py-2">
+                                            {{ file }}
+                                            <span class="badge bg-danger float-left">{{ details.errors|length }} خطا</span>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="list-unstyled">
+                                                {% for field, error in details.errors.items() %}
+                                                <li class="mb-2">
+                                                    <i class="fas fa-times-circle text-danger me-2"></i>
+                                                    <strong>{{ field_translations.get(field, field) }}:</strong> {{ error }}
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                                 {% endfor %}
@@ -328,117 +526,265 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- بخش Data Model Accuracy -->
-        <div class="section-title"><i class="fas fa-database me-2"></i>دقت مدل داده</div>
-        <div class="card mb-4">
-            <div class="card-header bg-purple text-white">
-                <i class="fas fa-sitemap me-2"></i>مغایرت‌های ساختاری
-            </div>
-            <div class="card-body">
-                <div class="alert alert-danger">
-                    <h5><i class="fas fa-times-circle me-2"></i>میانگین دقت مدل داده XML</h5>
-                    <div class="display-4">{{ "%.1f"|format(report.accuracy.data_model_accuracy_xml.overall_accuracy * 100) }}%</div>
+    <!-- ریسک خطا در تصاویر -->
+    <div class="section-title"><i class="fas fa-exclamation-triangle me-2"></i>ریسک خطا در تصاویر</div>
+    <div class="card mb-4">
+        <div class="card-header bg-danger text-white">
+            <i class="fas fa-image me-2"></i>مشکلات کیفی تصاویر
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-chart-pie me-2"></i>میانگین دقت</h5>
+                        <div class="display-4">{{ "%.1f"|format(report.accuracy.risk_of_inaccuracy_img.summary.overall_accuracy * 100) }}%</div>
+                    </div>
                 </div>
-
-                <div class="row">
-                    {% for file, details in report.accuracy.data_model_accuracy_xml.items() if file != 'overall_accuracy' %}
-                    <div class="col-md-6 mb-3">
-                        <div class="card border-danger">
-                            <div class="card-header bg-danger text-white py-2">
-                                {{ file }}
-                                <span class="badge bg-warning float-left">{{ details.missing_fields|length }} فیلد مفقود</span>
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-unstyled">
-                                    {% for field in details.missing_fields %}
-                                    <li class="mb-2">
-                                        <i class="fas fa-times-circle text-danger me-2"></i>
-                                        {{ field_translations.get(field, field)|default(field, true) }}
-                                    </li>
-                                    {% endfor %}
-                                </ul>
+                <div class="col-md-6">
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle me-2"></i>رایج‌ترین خطا</h5>
+                        <div class="text-truncate">مشکل ابعاد تصویر ({{ report.accuracy.risk_of_inaccuracy_img|length - 1 }} فایل)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion" id="imageRiskAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseImageErrors">
+                            <i class="fas fa-images me-2"></i>نمایش جزئیات خطاها
+                        </button>
+                    </h2>
+                    <div id="collapseImageErrors" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <div class="row row-cols-1 row-cols-md-2 g-4">
+                                {% for file, details in report.accuracy.risk_of_inaccuracy_img.items() if file != 'summary' %}
+                                <div class="col">
+                                    <div class="card h-100 border-danger">
+                                        <div class="card-header bg-danger text-white py-2">
+                                            {{ file }}
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="list-unstyled">
+                                                {% for field, error in details.errors.items() %}
+                                                <li class="mb-2">
+                                                    <i class="fas fa-times-circle text-danger me-2"></i>
+                                                    <strong>{{ field_translations.get(field, field) }}:</strong> {{ error }}
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- بخش به‌روزرسانی داده‌ها -->
-        <div class="section-title"><i class="fas fa-clock me-2"></i>بررسی به‌روز بودن داده‌ها</div>
-        <div class="card mb-4">
-            <div class="card-header bg-danger text-white">
-                <i class="fas fa-calendar-times me-2"></i>وضعیت زمانی داده‌ها
+    <!-- دقت نحوی -->
+    <div class="section-title"><i class="fas fa-code me-2"></i>دقت نحوی (قالب داده‌ها)</div>
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <i class="fas fa-file-code me-2"></i>خطاهای فرمت داده‌ها
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="alert alert-success">
+                        <h5><i class="fas fa-percentage me-2"></i>میانگین دقت</h5>
+                        <div class="display-4">{{ "%.1f"|format(report.accuracy.syntactic_accuracy.summary.overall_accuracy * 100) }}%</div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="alert alert-danger">
+                        <h5><i class="fas fa-exclamation-circle me-2"></i>فایل‌های مشکل‌دار</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for file, details in report.accuracy.syntactic_accuracy.items() if file != 'summary' and details.errors %}
+                            <span class="badge bg-danger">
+                                {{ file }} ({{ details.errors|length }} خطا)
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="alert alert-warning d-flex align-items-center">
-                    <i class="fas fa-stopwatch me-3 fa-2x"></i>
-                    <div>
-                        <h5 class="alert-heading">میانگین سن داده‌ها</h5>
-                        <div class="display-4">{{ report.currentness.record_currentness.summary.overall_record_currentness|round|int }} روز</div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <h5><i class="fas fa-car me-2"></i>مدل‌های خودرو</h5>
-                        <div class="progress mb-4" style="height: 25px;">
-                            <div class="progress-bar bg-{{ 'success' if report.currentness.feature_currentness.overall_feature_currentness >= 0.5 else 'warning' }}" 
-                                 role="progressbar" 
-                                 style="width: {{ report.currentness.feature_currentness.overall_feature_currentness * 100 }}%">
-                                {{ "%.1f"|format(report.currentness.feature_currentness.overall_feature_currentness * 100) }}%
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <h5><i class="fas fa-palette me-2"></i>رنگ‌های خودرو</h5>
-                        <div class="progress mb-4" style="height: 25px;">
-                            <div class="progress-bar bg-{{ 'success' if report.currentness.feature_currentness.overall_feature_currentness >= 0.5 else 'warning' }}" 
-                                 role="progressbar" 
-                                 style="width: {{ report.currentness.feature_currentness.overall_feature_currentness * 100 }}%">
-                                {{ "%.1f"|format(report.currentness.feature_currentness.overall_feature_currentness * 100) }}%
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <h5 class="mt-4"><i class="fas fa-exclamation-circle text-danger me-2"></i>مدل‌های منسوخ شده:</h5>
-                <div class="row">
-                    {% for file, details in report.currentness.feature_currentness.file_details.items() %}
-                        {% if details.Feature_currentness_file < 1 %}
-                        <div class="col-md-6 mb-3">
-                            <div class="card border-danger">
+            <div class="accordion" id="syntacticErrors">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseSyntactic">
+                            <i class="fas fa-file-excel me-2"></i>نمایش جزئیات خطاها
+                        </button>
+                    </h2>
+                    <div id="collapseSyntactic" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            {% for file, details in report.accuracy.syntactic_accuracy.items() if file != 'summary' and details.errors %}
+                            <div class="card mb-3 border-danger">
                                 <div class="card-header bg-danger text-white py-2">
                                     {{ file }}
                                 </div>
                                 <div class="card-body">
-                                    <ul class="list-unstyled">
-                                        <li><strong>مدل:</strong> {{ details.CarModel }}</li>
-                                        <li><strong>وضعیت:</strong> 
-                                            <span class="badge bg-{{ 'success' if details.CarModel_current else 'danger' }}">
-                                                {{ 'به‌روز' if details.CarModel_current else 'منسوخ' }}
-                                            </span>
+                                    <ul class="list-group list-group-flush">
+                                        {% for field, error in details.errors.items() %}
+                                        <li class="list-group-item">
+                                            <i class="fas fa-times-circle text-danger me-2"></i>
+                                            <strong>{{ field_translations.get(field, field) }}:</strong> {{ error }}
                                         </li>
-                                        <li><strong>رنگ:</strong> {{ details.CarColor }}</li>
+                                        {% endfor %}
                                     </ul>
                                 </div>
                             </div>
+                            {% endfor %}
                         </div>
-                        {% endif %}
-                    {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
-    {% endif %}
+    </div>
+
+    <!-- دقت معنایی -->
+    <div class="section-title"><i class="fas fa-brain me-2"></i>دقت معنایی</div>
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <i class="fas fa-check-circle me-2"></i>دقت پیش‌بینی‌ها
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="alert alert-success">
+                        <h5><i class="fas fa-percentage me-2"></i>میانگین دقت</h5>
+                        <div class="display-4">{{ "%.1f"|format(report.accuracy.semantic_accuracy.summary.overall_accuracy * 100) }}%</div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="alert alert-danger">
+                        <h5><i class="fas fa-exclamation-circle me-2"></i>فایل‌های مشکل‌دار</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for file, details in report.accuracy.semantic_accuracy.items() if file != 'summary' and details.errors %}
+                            <span class="badge bg-danger">
+                                {{ file }} ({{ details.errors|length }} خطا)
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion" id="semanticErrors">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseSemantic">
+                            <i class="fas fa-images me-2"></i>نمایش جزئیات خطاها
+                        </button>
+                    </h2>
+                    <div id="collapseSemantic" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            {% for file, details in report.accuracy.semantic_accuracy.items() if file != 'summary' and details.errors %}
+                            <div class="card mb-3 border-danger">
+                                <div class="card-header bg-danger text-white py-2">
+                                    {{ file }}
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group list-group-flush">
+                                        {% for error in details.errors %}
+                                        <li class="list-group-item">
+                                            <i class="fas fa-times-circle text-danger me-2"></i>
+                                            <strong>{{ field_translations.get(error.field, error.field) }}:</strong> 
+                                            پیش‌بینی: {{ error.predicted }}، مقدار واقعی: {{ error.ground_truth }}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بخش به‌روزرسانی داده‌ها -->
+    <div class="section-title"><i class="fas fa-clock me-2"></i>بررسی به‌روز بودن داده‌ها</div>
+    <div class="card mb-4">
+        <div class="card-header bg-danger text-white">
+            <i class="fas fa-calendar-times me-2"></i>وضعیت زمانی داده‌ها
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning d-flex align-items-center">
+                <i class="fas fa-stopwatch me-3 fa-2x"></i>
+                <div>
+                    <h5 class="alert-heading">میانگین سن داده‌ها</h5>
+                    <div class="display-4">
+                        {{ "%.0f"|format((report.currentness.record_currentness.files.values()|map(attribute='age_days')|sum) / (report.currentness.record_currentness.files|length)) }} روز
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-car me-2"></i>مدل‌های خودرو</h5>
+                    <div class="progress mb-4" style="height: 25px;">
+                        <div class="progress-bar bg-{{ 'success' if report.currentness.feature_currentness.overall_feature_currentness >= 0.5 else 'warning' }}" 
+                             role="progressbar" 
+                             style="width: {{ report.currentness.feature_currentness.overall_feature_currentness * 100 }}%">
+                            {{ "%.1f"|format(report.currentness.feature_currentness.overall_feature_currentness * 100) }}%
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5><i class="fas fa-palette me-2"></i>رنگ‌های خودرو</h5>
+                    <div class="progress mb-4" style="height: 25px;">
+                        <div class="progress-bar bg-{{ 'success' if report.currentness.feature_currentness.overall_feature_currentness >= 0.5 else 'warning' }}" 
+                             role="progressbar" 
+                             style="width: {{ report.currentness.feature_currentness.overall_feature_currentness * 100 }}%">
+                            {{ "%.1f"|format(report.currentness.feature_currentness.overall_feature_currentness * 100) }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h5 class="mt-4"><i class="fas fa-exclamation-circle text-danger me-2"></i>مدل‌های منسوخ شده:</h5>
+            <div class="row">
+                {% for file, details in report.currentness.feature_currentness.file_details.items() %}
+                {% if details.Feature_currentness_file < 1 %}
+                <div class="col-md-6 mb-3">
+                    <div class="card border-danger">
+                        <div class="card-header bg-danger text-white py-2">
+                            {{ file }}
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><strong>مدل:</strong> {{ details.CarModel }}</li>
+                                <li><strong>وضعیت مدل:</strong> 
+                                    <span class="badge bg-{{ 'success' if details.CarModel_current else 'danger' }}">
+                                        {{ 'به‌روز' if details.CarModel_current else 'منسوخ' }}
+                                    </span>
+                                </li>
+                                <li><strong>رنگ:</strong> {{ details.CarColor }}</li>
+                                <li><strong>وضعیت رنگ:</strong> 
+                                    <span class="badge bg-{{ 'success' if details.CarColor_current else 'danger' }}">
+                                        {{ 'به‌روز' if details.CarColor_current else 'منسوخ' }}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 
     <!-- دکمه بازگشت -->
     <div class="text-center mt-5">
         <a href="/" class="btn btn-primary btn-return">
-            <i class="fas fa-arrow-right me-2"></i>
-            بازگشت به صفحه اصلی
+            <i class="fas fa-arrow-right me-2"></i> بازگشت به صفحه اصلی
         </a>
     </div>
 </div>
