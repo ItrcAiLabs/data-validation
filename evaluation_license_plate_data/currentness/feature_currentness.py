@@ -2,7 +2,7 @@ import os
 import json
 import xml.etree.ElementTree as ET
 
-def FeatureCurrentness(xml_folder: str, field_xpaths: dict = None) -> dict:
+def FeatureCurrentness(xml_folder: str, xml_config: dict = None) -> dict:
     """
     Evaluates how up-to-date each feature is across all XML files.
 
@@ -32,6 +32,11 @@ def FeatureCurrentness(xml_folder: str, field_xpaths: dict = None) -> dict:
         - "file_details": a mapping of each XML file to its extracted values and overall file score.
         - "overall_feature_currentness": average of the feature precisions.
     """
+
+    field_xpaths = {key: xml_config[key] for key in xml_config if key in {
+                                                                                            "CarModel", 
+                                                                                            "CarColor"    
+                                                                                }}
     # Load up-to-date values from JSON files.
     with open("./currentness/data/CarColor.json", "r", encoding="utf-8") as f:
         colors_data = json.load(f)
