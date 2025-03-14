@@ -3,7 +3,7 @@ from .record_completeness import RecordCompleteness
 from .value_occurrence_completeness import ValueOccurrenceCompleteness
 import json
 
-def completeness(xml_folder: str, features: list, expected_counts: dict, field_xpaths: dict) -> dict:
+def completeness(xml_folder: str, xml_config: dict, expected_counts: dict) -> dict:
     """
     Runs three completeness evaluations on the XML files in the specified folder:
       1. Feature Completeness Evaluation:
@@ -30,13 +30,19 @@ def completeness(xml_folder: str, features: list, expected_counts: dict, field_x
             - "value_occurrence_completeness": Result from ValueOccurrenceCompleteness.
     """
     # 1. Feature Completeness Evaluation
+    features = list(xml_config.values())
     feature_report = FeatureCompleteness(xml_folder, features)
     
     # 2. Record Completeness Evaluation
     record_report = RecordCompleteness(xml_folder, features)
     
     # 3. Value Occurrence Completeness Evaluation
-    value_occurrence_report = ValueOccurrenceCompleteness(xml_folder, expected_counts, field_xpaths)
+    counts_x_path = {key: xml_config[key] for key in xml_config if key in {
+                                                                                            "CarModel", 
+                                                                                            "CarColor"    
+                                                                                }}
+    
+    value_occurrence_report = ValueOccurrenceCompleteness(xml_folder, expected_counts, counts_x_path)
     
     # Combine all results into a single dictionary.
     all_results = {
@@ -48,54 +54,3 @@ def completeness(xml_folder: str, features: list, expected_counts: dict, field_x
 
     
     return json.dumps(all_results, ensure_ascii=False, indent=4)
-
-# --- Example Usage ---
-# xml_folder = "/home/reza/Desktop/data-validation/evaluation_license_plate_data/assets/xml"
-
-# features = [
-#     "LicensePlate/RegistrationPrefix",
-#     "LicensePlate/SeriesLetter",
-#     "LicensePlate/RegistrationNumber",
-#     "LicensePlate/ProvinceCode",
-#     "CarModel",
-#     "CarColor",
-#     "LicensePlateCoordinates/X",
-#     "LicensePlateCoordinates/Y",
-#     "LicensePlateCoordinates/Width",
-#     "LicensePlateCoordinates/Height",
-#     "CarCoordinates/X",
-#     "CarCoordinates/Y",
-#     "CarCoordinates/Width",
-#     "CarCoordinates/Height"
-# ]
-
-# required_fields = [
-#     "LicensePlate/RegistrationPrefix",
-#     "LicensePlate/SeriesLetter",
-#     "LicensePlate/RegistrationNumber",
-#     "LicensePlate/ProvinceCode",
-#     "CarModel",
-#     "CarColor",
-#     "LicensePlateCoordinates/X",
-#     "LicensePlateCoordinates/Y",
-#     "LicensePlateCoordinates/Width",
-#     "LicensePlateCoordinates/Height",
-#     "CarCoordinates/X",
-#     "CarCoordinates/Y",
-#     "CarCoordinates/Width",
-#     "CarCoordinates/Height"
-# ]
-
-# expected_counts = {
-#     "CarColor": {"brown": 3, "purple": 2, "white": 5},
-#     "CarModel": {"Peugeot-405": 10, "Samand": 8},
-# }
-
-# field_xpaths = {
-#     "CarColor": "CarColor",
-#     "CarModel": "CarModel",
-#     "RegistrationPrefix": "LicensePlate/RegistrationPrefix"
-# }
-
-# results = completeness(xml_folder, features, expected_counts, field_xpaths)
-# print(results)
