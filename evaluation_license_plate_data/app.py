@@ -87,32 +87,17 @@ def index():
                 return "فایل تعدادهای مورد انتظار باید شامل کلیدهای CarColor و CarModel باشد", 400
 
             # پردازش داده‌های موجود در فایل پیکربندی (xml_data)
-            mapping = xml_data.get("config")
-            features = list(mapping.values())
-            completeness_field_xpaths = {key: mapping[key] for key in mapping if key in {"CarModel", "CarColor"}}
-            accuracy_required_fields = {key: mapping[key] for key in mapping if key in {
-                "registration_prefix", "series_letter", "registration_number", "province_code",
-                "car_model", "car_color", "license_plate_coordinates", "car_coordinates"
-            }}
-            xpaths_syntactic = {key: mapping[key] for key in mapping if key in {
-                "registration_prefix", "series_letter", "registration_number", "province_code"
-            }}
-            currentness_field_xpaths = {key: mapping[key] for key in mapping if key in {"CarModel", "CarColor"}}
-
+            xml_config = xml_data.get("config")
             report = evaluation_license_plate_data(
                 xml_folder,
                 image_folder,
+                xml_config,
                 threshold_days,
-                features,
                 expected_counts,
-                completeness_field_xpaths,
                 required_metadata,
-                accuracy_required_fields,
                 allowed_file_types,
                 dimension_range,
                 file_size_range,
-                xpaths_syntactic,
-                currentness_field_xpaths
             )
 
 
@@ -148,4 +133,4 @@ def index():
     return render_template("index.html")
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+    app.run(debug=True, port=5003)
