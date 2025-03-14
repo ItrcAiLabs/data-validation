@@ -16,11 +16,13 @@ class GetInfo:
         self.car_coordinates = self.format_bbox(car_bbox)
         self.plate_number, plate_bbox = process_image(self.image_path)
         self.plate_coordinates = self.format_bbox(plate_bbox)
-
+    
     def format_bbox(self, bbox):
+        if bbox is None:
+            return None
         x1, y1, x2, y2 = bbox
         return {"X": x1, "Y": y1, "Width": x2 - x1, "Height": y2 - y1}
-
+    
     def parse_plate_number(self):
         plate = self.plate_number or ""
         if len(plate) < 8:
@@ -31,10 +33,11 @@ class GetInfo:
         province_code = plate[-2:] if len(plate) >= 2 else "NN"
         return reg_prefix, series_letter, reg_number, province_code
 
+
 class XMLInfo:
-    def __init__(self, xml_path: str, required_fields: dict):
+    def __init__(self, xml_path: str, xml_config: dict):
         self.xml_path = xml_path
-        self.required_fields = required_fields
+        self.xml_config = xml_config
         self.data = {}
         self.parse_xml()
     
@@ -42,7 +45,7 @@ class XMLInfo:
         try:
             tree = ET.parse(self.xml_path)
             root = tree.getroot()
-            self.data = {key: self.get_text(root, path) for key, path in self.required_fields.items()}
+            self.data = {key: self.get_text(root, path) for key, path in self.xml_config.items()}
         except ET.ParseError:
             self.data = {"error": "Invalid XML format"}
     
@@ -50,15 +53,32 @@ class XMLInfo:
         element = root.find(path)
         return element.text.strip() if element is not None and element.text else None
 
+
 class SemanticEvaluator:
-    def __init__(self, xml_dir: str, image_dir: str, required_fields: dict):
+    def __init__(self, xml_dir: str, image_dir: str, xml_config: dict):
         self.xml_dir = xml_dir
         self.image_dir = image_dir
-        self.required_fields = required_fields
+        self.xml_config = {key: xml_config[key] for key in xml_config if key in {
+                                                                                    "registration_prefix",
+                                                                                    "series_letter",
+                                                                                    "registration_number",
+                                                                                    "province_code",
+                                                                                    "car_model",
+                                                                                    "car_color",
+                                                                                    "license_plate_coordinates_x",
+                                                                                    "license_plate_coordinates_y",
+                                                                                    "license_plate_coordinates_width",
+                                                                                    "license_plate_coordinates_height",
+                                                                                    "car_coordinates_x",
+                                                                                    "car_coordinates_y",
+                                                                                    "car_coordinates_width",
+                                                                                    "car_coordinates_height"
+                                                                                }}
         self.results = {}
     
     def evaluate_file(self, filename: str) -> dict:
         base_name = os.path.splitext(filename)[0]
+        # Assume image files are in PNG format.
         img_path = os.path.join(self.image_dir, base_name + ".png")
         xml_path = os.path.join(self.xml_dir, base_name + ".xml")
         
@@ -67,18 +87,26 @@ class SemanticEvaluator:
         
         detector = GetInfo(img_path)
         detector.extract_info()
+        reg_prefix, series_letter, reg_number, province_code = detector.parse_plate_number()
+        # Update predictions with individual coordinate fields.
         pred_values = {
             "car_color": detector.color.lower() if detector.color else "",
             "car_model": detector.car_model,
-            "registration_prefix": detector.parse_plate_number()[0],
-            "series_letter": detector.parse_plate_number()[1],
-            "registration_number": detector.parse_plate_number()[2],
-            "province_code": detector.parse_plate_number()[3],
-            "car_coordinates": detector.car_coordinates,
-            "license_plate_coordinates": detector.plate_coordinates
+            "registration_prefix": reg_prefix,
+            "series_letter": series_letter,
+            "registration_number": reg_number,
+            "province_code": province_code,
+            "license_plate_coordinates_x": detector.plate_coordinates.get("X") if detector.plate_coordinates else None,
+            "license_plate_coordinates_y": detector.plate_coordinates.get("Y") if detector.plate_coordinates else None,
+            "license_plate_coordinates_width": detector.plate_coordinates.get("Width") if detector.plate_coordinates else None,
+            "license_plate_coordinates_height": detector.plate_coordinates.get("Height") if detector.plate_coordinates else None,
+            "car_coordinates_x": detector.car_coordinates.get("X") if detector.car_coordinates else None,
+            "car_coordinates_y": detector.car_coordinates.get("Y") if detector.car_coordinates else None,
+            "car_coordinates_width": detector.car_coordinates.get("Width") if detector.car_coordinates else None,
+            "car_coordinates_height": detector.car_coordinates.get("Height") if detector.car_coordinates else None
         }
         
-        xml_info = XMLInfo(xml_path, self.required_fields)
+        xml_info = XMLInfo(xml_path, self.xml_config)
         gt_data = xml_info.data
         
         field_scores = {}
@@ -86,15 +114,16 @@ class SemanticEvaluator:
         
         for field, pred_value in pred_values.items():
             gt_value = gt_data.get(field, None)
-            field_scores[f"{field}_accuracy"] = 1.0 if pred_value == gt_value else 0.0
-            if pred_value != gt_value:
+            # Compare string representations (or numerical values as strings) for coordinates.
+            field_scores[f"{field}_accuracy"] = 1.0 if str(pred_value) == str(gt_value) else 0.0
+            if str(pred_value) != str(gt_value):
                 errors.append({
                     "field": field,
                     "predicted": pred_value,
                     "ground_truth": gt_value
                 })
         
-        overall_accuracy = sum(field_scores.values()) / len(field_scores)
+        overall_accuracy = sum(field_scores.values()) / len(field_scores) if field_scores else 0
         
         return {
             "fields": field_scores,
@@ -108,12 +137,10 @@ class SemanticEvaluator:
                 self.results[filename] = self.evaluate_file(filename)
         
         valid_files = [res for res in self.results.values() if "file_accuracy" in res]
-        overall_accuracy = sum(res["file_accuracy"] for res in valid_files) / len(valid_files) if valid_files else 0
+        overall_accuracy = (sum(res["file_accuracy"] for res in valid_files) / len(valid_files)
+                            if valid_files else 0)
         self.results["summary"] = {"overall_accuracy": overall_accuracy}
-        return (json.dumps(self.results, ensure_ascii=False, indent=4))
-
-
-
+        return json.dumps(self.results, ensure_ascii=False, indent=4)
 
 
 # xml_folder = "/home/reza/Desktop/data-validation/evaluation_license_plate_data/assets/xml"  # Folder containing XML files.

@@ -3,7 +3,7 @@ from ._data_model_accuracy.data_model_accuracy_img import DataModelAccuracyIMG
 from ._data_model_accuracy.data_model_accuracy_xml import DataModelAccuracyXML
 
 
-def DataModelAccuracy(folder_path_img, folder_path_xml, required_metadata, required_fields):
+def DataModelAccuracy(folder_path_img, folder_path_xml, required_metadata, xml_config):
     """
     Runs the data model accuracy validation on both image files and XML files.
 
@@ -31,6 +31,7 @@ def DataModelAccuracy(folder_path_img, folder_path_xml, required_metadata, requi
     report_img = validator.get_model_accuracy()
 
     # Instantiate the XML validator with the XML folder and required fields.
+    required_fields = list(xml_config.values())
     validator = DataModelAccuracyXML(folder_path_xml, required_fields)
     # Validate all XML files in the specified folder.
     validator.validate_files()

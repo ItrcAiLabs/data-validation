@@ -4,7 +4,7 @@ from .semantic_accuracy import SemanticEvaluator
 from .data_model_accuracy import DataModelAccuracy
 from .syntactic_accuracy import SyntacticAccuracy
 
-def accuracy(image_folder, xml_folder, required_metadata, required_fields, allowed_file_types, dimension_range, file_size_range, xpaths_syntactic):
+def accuracy(image_folder, xml_folder, xml_config , required_metadata, allowed_file_types, dimension_range, file_size_range):
     """
     Runs the accuracy evaluation process and returns the report as a JSON-compatible dictionary.
 
@@ -22,67 +22,23 @@ def accuracy(image_folder, xml_folder, required_metadata, required_fields, allow
 
     results = {}
     # 1️⃣ Data Model Accuracy
-    results["data_model_accuracy_xml"] = json.loads(DataModelAccuracy(image_folder, xml_folder, required_metadata, required_fields)[0])
-    results["data_model_accuracy_img"] = json.loads(DataModelAccuracy(image_folder, xml_folder, required_metadata, required_fields)[1])
+    results["data_model_accuracy_xml"] = json.loads(DataModelAccuracy(image_folder, xml_folder, required_metadata, xml_config)[0])
+    results["data_model_accuracy_img"] = json.loads(DataModelAccuracy(image_folder, xml_folder, required_metadata, xml_config)[1])
 
     # 2️⃣ Risk of Inaccuracy
-    results["risk_of_inaccuracy_img"] = json.loads(RiskOfInaccuracy(image_folder, xml_folder, allowed_file_types, dimension_range, file_size_range, required_fields)[0])
-    results["risk_of_inaccuracy_img"] = json.loads(RiskOfInaccuracy(image_folder, xml_folder, allowed_file_types, dimension_range, file_size_range, required_fields)[1])
+    results["risk_of_inaccuracy_xml"] = json.loads(RiskOfInaccuracy(image_folder, xml_folder, allowed_file_types, dimension_range, file_size_range, xml_config)[0])
+    results["risk_of_inaccuracy_img"] = json.loads(RiskOfInaccuracy(image_folder, xml_folder, allowed_file_types, dimension_range, file_size_range, xml_config)[1])
 
 
     # 3️⃣ Semantic Accuracy
-    semantic_evaluator = SemanticEvaluator(xml_folder, image_folder, required_fields)
+    semantic_evaluator = SemanticEvaluator(xml_folder, image_folder, xml_config)
     results["semantic_accuracy"] = json.loads(semantic_evaluator.evaluate_directory())
 
 
-    # 4️⃣ Syntactic Accuracy
-    syntactic_evaluator = SyntacticAccuracy(xml_folder, xpaths_syntactic)
+    # 4️⃣ Syntactic Accuracy    
+    syntactic_evaluator = SyntacticAccuracy(xml_folder, xml_config)
     syntactic_evaluator.process_folder()
     results["syntactic_accuracy"] = json.loads(syntactic_evaluator.get_syntactic_evaluator())
 
 
     return json.dumps(results, ensure_ascii=False, indent=4)
-
-
-
-# if __name__ == "__main__":
-#     xml_folder = "/home/reza/Desktop/data-validation/evaluation_license_plate_data/assets/xml"
-#     image_folder = "/home/reza/Desktop/data-validation/evaluation_license_plate_data/assets/img"
-
-#     required_metadata = ["width", "height", "format", "location", "date"]
-
-#     required_fields = {
-#         "registration_prefix": "LicensePlate/RegistrationPrefix",
-#         "series_letter": "LicensePlate/SeriesLetter",
-#         "registration_number": "LicensePlate/RegistrationNumber",
-#         "province_code": "LicensePlate/ProvinceCode",
-#         "car_model": "CarModel",
-#         "car_color": "CarColor",
-#         "license_plate_coordinates": "LicensePlateCoordinates",
-#         "car_coordinates": "CarCoordinates"
-#     }
-
-#     allowed_file_types = ['png']
-
-#     dimension_range = {
-#         'min_width': 800,
-#         'max_width': 1920,
-#         'min_height': 600,
-#         'max_height': 1080
-#     }
-
-#     file_size_range = {
-#         'min_size': 1024,      
-#         'max_size': 5_000_000  
-#     }
-
-#     xpaths_syntactic = {
-#         "registration_prefix": "LicensePlate/RegistrationPrefix",
-#         "series_letter": "LicensePlate/SeriesLetter",
-#         "registration_number": "LicensePlate/RegistrationNumber",
-#         "province_code": "LicensePlate/ProvinceCode"
-#     }
-
-#     report = accuracy(image_folder, xml_folder, required_metadata, required_fields, allowed_file_types, dimension_range, file_size_range, xpaths_syntactic)
-    
-#     print(report)

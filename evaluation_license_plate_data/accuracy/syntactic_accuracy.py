@@ -4,7 +4,7 @@ import json
 import xml.etree.ElementTree as ET
 
 class SyntacticAccuracy:
-    def __init__(self, xml_folder: str, xpaths: dict) -> None:
+    def __init__(self, xml_folder: str, xml_config: dict) -> None:
         """
         Initializes the evaluator with the folder containing XML files and the XML paths
         for the required fields.
@@ -19,7 +19,12 @@ class SyntacticAccuracy:
                       - "province_code": e.g. "LicensePlate/ProvinceCode"
         """
         self.xml_folder = xml_folder
-        self.xpaths = xpaths
+        self.xpaths = {key: xml_config[key] for key in xml_config if key in {
+                                                                                    "registration_prefix",
+                                                                                    "series_letter",
+                                                                                    "registration_number",
+                                                                                    "province_code"
+                                                                                }}
         self.results = {}
 
     def compute_accuracy(self, xml_content: str) -> dict:
