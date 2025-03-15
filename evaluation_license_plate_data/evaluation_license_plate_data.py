@@ -1,6 +1,7 @@
 from completeness.completeness import completeness
 from accuracy.accuracy import accuracy
 from currentness.currentness import Currentness
+from consistency.consistency import consistency
 import json
 
 def evaluation_license_plate_data(
@@ -78,12 +79,17 @@ def evaluation_license_plate_data(
     photo_folder = image_folder
     curr_json_str = Currentness(xml_folder, photo_folder, threshold_days, xml_config)
     curr_result = json.loads(curr_json_str)
+
+
+    consis_json_str = consistency(xml_folder, xml_config, photo_folder)
+    consis_result = json.loads(consis_json_str)
     
     # Combine all results.
     overall_result = {
         "completeness": comp_result,
         "accuracy": acc_result,
-        "currentness": curr_result
+        "currentness": curr_result,
+        "consistency" :consis_result
     }
     
     return json.dumps(overall_result, ensure_ascii=False, indent=4)
