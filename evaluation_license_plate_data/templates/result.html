@@ -26,6 +26,10 @@
         .bg-purple { background-color: #6f42c1; }
         .chart-container { position: relative; height: 400px; width: 100%; }
     </style>
+    <script>
+        // انتقال داده‌های گزارش از Jinja به JavaScript
+        const reportData = {{ report|tojson|safe }};
+    </script>
 </head>
 <body>
 <div class="container py-5">
@@ -223,131 +227,6 @@
             </div>
         </div>
     </div>
-
-    <!-- نمودارهای ستونی برای CarColor و CarModel -->
-    <div class="section-title"><i class="fas fa-chart-bar me-2"></i>مقایسه Expected و Count</div>
-    <div class="row g-4">
-        <!-- نمودار برای CarColor -->
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header bg-info text-white">
-                    <i class="fas fa-chart-bar me-2"></i>رنگ خودروها
-                </div>
-                <div class="card-body">
-                    <canvas id="carColorChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <!-- نمودار برای CarModel -->
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header bg-info text-white">
-                    <i class="fas fa-chart-bar me-2"></i>مدل خودروها
-                </div>
-                <div class="card-body">
-                    <canvas id="carModelChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- اسکریپت برای رسم نمودارها -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // فرض می‌کنیم داده‌های JSON در report.value_occurrence_completeness موجود است
-            const jsonData = report.value_occurrence_completeness;
-
-            // استخراج داده‌ها برای CarColor
-            const carColorLabels = Object.keys(jsonData.CarColor.values);
-            const carColorExpected = carColorLabels.map(label => jsonData.CarColor.values[label].expected);
-            const carColorCount = carColorLabels.map(label => jsonData.CarColor.values[label].count);
-
-            // استخراج داده‌ها برای CarModel
-            const carModelLabels = Object.keys(jsonData.CarModel.values);
-            const carModelExpected = carModelLabels.map(label => jsonData.CarModel.values[label].expected);
-            const carModelCount = carModelLabels.map(label => jsonData.CarModel.values[label].count);
-
-            // تنظیمات نمودار CarColor
-            const carColorCtx = document.getElementById('carColorChart').getContext('2d');
-            new Chart(carColorCtx, {
-                type: 'bar',
-                data: {
-                    labels: carColorLabels,
-                    datasets: [
-                        {
-                            label: 'Expected',
-                            data: carColorExpected,
-                            backgroundColor: 'rgba(54, 162, 235, 0.8)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Count',
-                            data: carColorCount,
-                            backgroundColor: 'rgba(255, 99, 132, 0.8)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'تعداد' }
-                        },
-                        x: {
-                            title: { display: true, text: 'رنگ خودرو' }
-                        }
-                    },
-                    plugins: {
-                        legend: { position: 'top' },
-                        title: { display: true, text: 'مقایسه Expected و Count برای رنگ خودروها' }
-                    }
-                }
-            });
-
-            // تنظیمات نمودار CarModel
-            const carModelCtx = document.getElementById('carModelChart').getContext('2d');
-            new Chart(carModelCtx, {
-                type: 'bar',
-                data: {
-                    labels: carModelLabels,
-                    datasets: [
-                        {
-                            label: 'Expected',
-                            data: carModelExpected,
-                            backgroundColor: 'rgba(54, 162, 235, 0.8)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Count',
-                            data: carModelCount,
-                            backgroundColor: 'rgba(255, 99, 132, 0.8)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'تعداد' }
-                        },
-                        x: {
-                            title: { display: true, text: 'مدل خودرو' }
-                        }
-                    },
-                    plugins: {
-                        legend: { position: 'top' },
-                        title: { display: true, text: 'مقایسه Expected و Count برای مدل خودروها' }
-                    }
-                }
-            });
-        });
-    </script>
 
     <!-- بخش دقت داده‌ها -->
     <div class="section-title"><i class="fas fa-search me-2"></i>بررسی دقت داده‌ها</div>
@@ -781,6 +660,274 @@
         </div>
     </div>
 
+    <!-- بخش ثبات فرمت تصاویر -->
+    <div class="section-title"><i class="fas fa-image me-2"></i>ثبات فرمت تصاویر</div>
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <i class="fas fa-file-image me-2"></i>خلاصه ثبات فرمت تصاویر
+        </div>
+        <div class="card-body">
+            <div class="alert alert-success">
+                <h5><i class="fas fa-percentage me-2"></i>میانگین ثبات</h5>
+                <div class="display-4">{{ "%.1f"|format(report.consistency.data_format_consistency_img.summary.data_format_consistency * 100) }}%</div>
+            </div>
+            <div class="accordion" id="imgFormatConsistencyAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseImgFormatConsistency">
+                            <i class="fas fa-images me-2"></i>نمایش جزئیات مغایرت‌ها
+                        </button>
+                    </h2>
+                    <div id="collapseImgFormatConsistency" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <ul class="list-group">
+                                {% for file, details in report.consistency.data_format_consistency_img.files.items() if details.format_consistency < 1 %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-times-circle text-danger me-2"></i>
+                                    {{ file }}: {{ details.errors }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بخش ثبات فرمت XML -->
+    <div class="section-title"><i class="fas fa-file-code me-2"></i>ثبات فرمت XML</div>
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <i class="fas fa-file-code me-2"></i>خلاصه ثبات فرمت XML
+        </div>
+        <div class="card-body">
+            <div class="alert alert-success">
+                <h5><i class="fas fa-percentage me-2"></i>میانگین ثبات کلی</h5>
+                <div class="display-4">{{ "%.1f"|format(report.consistency.data_format_consistency_xml.summary.overall_consistency * 100) }}%</div>
+            </div>
+            <div class="accordion" id="xmlFormatConsistencyAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseXmlFormatConsistency">
+                            <i class="fas fa-file-excel me-2"></i>نمایش جزئیات مغایرت‌ها
+                        </button>
+                    </h2>
+                    <div id="collapseXmlFormatConsistency" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>فیلد</th>
+                                        <th>نوع رایج</th>
+                                        <th>امتیاز ثبات</th>
+                                        <th>خطاها</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for field, details in report.consistency.data_format_consistency_xml.fields.items() %}
+                                    <tr>
+                                        <td>{{ field_translations.get(field, field) }}</td>
+                                        <td>{{ details.most_common_type }}</td>
+                                        <td>{{ "%.1f"|format(details.consistency_score * 100) }}%</td>
+                                        <td>
+                                            {% if details.errors %}
+                                            <ul class="list-unstyled">
+                                                {% for error in details.errors %}
+                                                <li>{{ error.file }}: {{ error.actual_type }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                            {% else %}
+                                            <span class="text-success">-</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بخش ثبات رکوردها -->
+    <div class="section-title"><i class="fas fa-database me-2"></i>ثبات رکوردها</div>
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <i class="fas fa-check-circle me-2"></i>خلاصه ثبات رکوردها
+        </div>
+        <div class="card-body">
+            <div class="alert alert-success">
+                <h5><i class="fas fa-percentage me-2"></i>امتیاز ثبات</h5>
+                <div class="display-4">{{ "%.1f"|format(report.consistency.data_record_consistency.summary.consistency_score * 100) }}%</div>
+            </div>
+            <div class="accordion" id="recordConsistencyAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseRecordConsistency">
+                            <i class="fas fa-exclamation-triangle me-2"></i>نمایش جزئیات مغایرت‌ها
+                        </button>
+                    </h2>
+                    <div id="collapseRecordConsistency" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <h5>تصاویر بدون XML:</h5>
+                            <ul class="list-group mb-3">
+                                {% for file in report.consistency.data_record_consistency.errors.images_without_xml %}
+                                <li class="list-group-item">{{ file }}</li>
+                                {% endfor %}
+                            </ul>
+                            <h5>XML بدون تصویر:</h5>
+                            <ul class="list-group">
+                                {% for file in report.consistency.data_record_consistency.errors.xml_without_images %}
+                                <li class="list-group-item">{{ file }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بخش توزیع مقادیر داده -->
+    <div class="section-title"><i class="fas fa-chart-pie me-2"></i>توزیع مقادیر داده</div>
+    <div class="row g-4">
+        <!-- کارت حرف سری پلاک -->
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-chart-pie me-2"></i>حرف سری پلاک
+                </div>
+                <div class="card-body">
+                    <canvas id="seriesLetterChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- کارت کد استان پلاک -->
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-chart-pie me-2"></i>کد استان پلاک
+                </div>
+                <div class="card-body">
+                    <canvas id="provinceCodeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- کارت جدید برای مدل ماشین -->
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-chart-pie me-2"></i>مدل ماشین
+                </div>
+                <div class="card-body">
+                    <canvas id="carModelChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- کارت جدید برای رنگ ماشین -->
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-chart-pie me-2"></i>رنگ ماشین
+                </div>
+                <div class="card-body">
+                    <canvas id="carColorChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const dataValueDistribution = reportData.consistency.data_value_distribution;
+
+        // نمودار حرف سری پلاک
+        new Chart(document.getElementById('seriesLetterChart'), {
+            type: 'pie',
+            data: {
+                labels: Object.keys(dataValueDistribution.series_letter),
+                datasets: [{
+                    data: Object.values(dataValueDistribution.series_letter),
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#5a5c69', '#3a3b45']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top', rtl: true },
+                    title: { display: true, text: 'توزیع حرف سری پلاک' }
+                }
+            }
+        });
+
+        // نمودار کد استان پلاک
+        new Chart(document.getElementById('provinceCodeChart'), {
+            type: 'pie',
+            data: {
+                labels: Object.keys(dataValueDistribution.province_code),
+                datasets: [{
+                    data: Object.values(dataValueDistribution.province_code),
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top', rtl: true },
+                    title: { display: true, text: 'توزیع کد استان' }
+                }
+            }
+        });
+
+        // نمودار جدید برای مدل ماشین
+        new Chart(document.getElementById('carModelChart'), {
+            type: 'pie',
+            data: {
+                labels: Object.keys(dataValueDistribution.car_model),
+                datasets: [{
+                    data: Object.values(dataValueDistribution.car_model),
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top', rtl: true },
+                    title: { display: true, text: 'توزیع مدل خودرو' }
+                }
+            }
+        });
+
+        // نمودار جدید برای رنگ ماشین
+        new Chart(document.getElementById('carColorChart'), {
+            type: 'pie',
+            data: {
+                labels: Object.keys(dataValueDistribution.car_color),
+                datasets: [{
+                    data: Object.values(dataValueDistribution.car_color),
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top', rtl: true },
+                    title: { display: true, text: 'توزیع رنگ خودرو' }
+                }
+            }
+        });
+    });
+    </script>
+
     <!-- دکمه بازگشت -->
     <div class="text-center mt-5">
         <a href="/" class="btn btn-primary btn-return">
@@ -792,3 +939,5 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+
